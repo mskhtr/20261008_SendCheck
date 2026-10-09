@@ -183,7 +183,7 @@ Private Function ScrollFrameUnderCursor(ByVal lParam As LongPtr) As Boolean
                 If Not target Is Nothing Then
 
                     If target.Name = "fraAttachments_list" Then
-                        stepSize = 18
+                        stepSize = 22
                     Else
                         stepSize = WHEEL_STEP
                     End If
@@ -196,6 +196,9 @@ Private Function ScrollFrameUnderCursor(ByVal lParam As LongPtr) As Boolean
                     If newTop > maxTop Then newTop = maxTop
 
                     target.ScrollTop = newTop
+                    On Error Resume Next
+                    mForm.SyncScrollThumb target
+                    On Error GoTo Fail
                     ScrollFrameUnderCursor = True
                     Exit Function
 
@@ -221,9 +224,11 @@ Private Function FindVerticalScrollFrame(ByVal container As Object) As Object
     On Error GoTo Fail
 
     If TypeName(container) = "Frame" Then
-        If (container.ScrollBars And 2) <> 0 Then
-            Set FindVerticalScrollFrame = container
-            Exit Function
+        If Right$(container.Name, 5) = "_list" Then
+            If container.ScrollHeight > container.InsideHeight + 1 Then
+                Set FindVerticalScrollFrame = container
+                Exit Function
+            End If
         End If
     End If
 

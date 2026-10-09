@@ -20,7 +20,11 @@ Private Sub CardFrame_Click()
     If ParentForm Is Nothing Then Exit Sub
     If CardFrame Is Nothing Then Exit Sub
 
-    If Left(CardFrame.Name, 5) = "card_" Then
+    If CardFrame.Name = "fraAttachments" Or CardFrame.Name = "fraAttachments_list" Then
+        ParentForm.ToggleAttachmentFocus
+    ElseIf Left(CardFrame.Name, 4) = "att_" Then
+        ParentForm.ToggleAttachment Mid$(CardFrame.Name, 5)
+    ElseIf Left(CardFrame.Name, 5) = "card_" Then
         ParentForm.ToggleCard CardFrame
     Else
         ParentForm.ToggleCategoryFilter CardFrame
@@ -36,13 +40,43 @@ Private Sub CardLabel_Click()
     If ParentForm Is Nothing Then Exit Sub
     If CardLabel Is Nothing Then Exit Sub
 
+    If CardLabel.Name = "lblAttachmentTitle" Or _
+        CardLabel.Name = "lblAttachmentAlert" Or _
+        CardLabel.Name = "lblAttachmentCount" Then
+        ParentForm.ToggleAttachmentFocus
+        Exit Sub
+    End If
+
     If Right(CardLabel.Name, 6) = "_title" Or Right(CardLabel.Name, 6) = "_count" Then
         ParentForm.ToggleCategoryFilter CardLabel.Parent
         Exit Sub
     End If
 
+    If Left$(CardLabel.Name, 4) = "row_" Then
+        ParentForm.ToggleAttachment Mid$(CardLabel.Name, 5)
+        Exit Sub
+    End If
+
+    If Left$(CardLabel.Name, 4) = "att_" Then
+        ParentForm.ToggleAttachment Mid$(CardLabel.Name, 5)
+        Exit Sub
+    End If
+
+    If Left$(CardLabel.Name, 3) = "st_" Or _
+        Left$(CardLabel.Name, 3) = "pw_" Or _
+        Left$(CardLabel.Name, 3) = "mk_" Or _
+        Left$(CardLabel.Name, 3) = "fi_" Then
+        ParentForm.ToggleAttachment Mid$(CardLabel.Name, 4)
+        Exit Sub
+    End If
+
     Set card = CardLabel.Parent
     If TypeName(card) <> "Frame" Then Exit Sub
+
+    If Left$(card.Name, 4) = "att_" Then
+        ParentForm.ToggleAttachment Mid$(card.Name, 5)
+        Exit Sub
+    End If
 
     ParentForm.ToggleCard card
 
