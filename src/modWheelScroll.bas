@@ -2,18 +2,18 @@ Attribute VB_Name = "modWheelScroll"
 Option Explicit
 
 '========================================================
-' ãƒžã‚¦ã‚¹ãƒ›ã‚¤ãƒ¼ãƒ«ã§ Frame ã‚’ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã™ã‚‹
+' ƒ}ƒEƒXƒzƒC[ƒ‹‚Å Frame ‚ðƒXƒNƒ[ƒ‹‚·‚é
 '
-' UserForm ã® Frame ã¯ã€æ¨™æº–ã§ã¯ãƒ›ã‚¤ãƒ¼ãƒ«ã«åå¿œã—ãªã„ã€‚
-' ãƒ•ã‚©ãƒ¼ãƒ è¡¨ç¤ºä¸­ã ã‘ãƒ•ãƒƒã‚¯ã‚’æŽ›ã‘ã€ã‚«ãƒ¼ã‚½ãƒ«ä¸‹ã®ç¸¦ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«
-' ä»˜ã Frame ã® ScrollTop ã‚’å‹•ã‹ã™ã€‚
+' UserForm ‚Ì Frame ‚ÍA•W€‚Å‚ÍƒzƒC[ƒ‹‚É”½‰ž‚µ‚È‚¢B
+' ƒtƒH[ƒ€•\Ž¦’†‚¾‚¯ƒtƒbƒN‚ðŠ|‚¯AƒJ[ƒ\ƒ‹‰º‚ÌcƒXƒNƒ[ƒ‹
+' •t‚« Frame ‚Ì ScrollTop ‚ð“®‚©‚·B
 '========================================================
 
 Private Const WH_MOUSE_LL As Long = 14
 Private Const WM_MOUSEWHEEL As Long = &H20A
 Private Const HC_ACTION As Long = 0
 
-' å®›å…ˆã‚«ãƒ¼ãƒ‰ 1 æžšã¶ã‚“
+' ˆ¶æƒJ[ƒh 1 –‡‚Ô‚ñ
 Private Const WHEEL_STEP As Single = 100
 
 Private mHook As LongPtr

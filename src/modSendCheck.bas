@@ -1,8 +1,11 @@
 Attribute VB_Name = "modSendCheck"
 Option Explicit
 
-Public Sub é€ä¿¡å‰ãƒã‚§ãƒƒã‚¯ã‚’é–‹ã()
+Public Sub ‘—M‘Oƒ`ƒFƒbƒN‚ğŠJ‚­()
 
+    On Error Resume Next
+    Unload frmSendCheck
+    On Error GoTo 0
     frmSendCheck.Show
 
 End Sub

@@ -40,6 +40,36 @@ Private Sub CardLabel_Click()
     If ParentForm Is Nothing Then Exit Sub
     If CardLabel Is Nothing Then Exit Sub
 
+    If CardLabel.Name = "roleTo" Or _
+        CardLabel.Name = "roleCc" Or _
+        CardLabel.Name = "roleBcc" Then
+        ParentForm.ToggleAddressFilter CStr(CardLabel.Tag)
+        Exit Sub
+    End If
+
+    If CardLabel.Name = "lblHeaderBlank" Or _
+        CardLabel.Name = "lblHeaderBlankRight" Then
+        ParentForm.ButtonAction "Reset"
+        Exit Sub
+    End If
+
+    If Left$(CardLabel.Name, 6) = "photo_" Or _
+        Left$(CardLabel.Name, 6) = "phchk_" Or _
+        Left$(CardLabel.Name, 6) = "phshd_" Then
+        ParentForm.TogglePersonCheck CardLabel.Parent
+        Exit Sub
+    End If
+
+    If Left$(CardLabel.Name, 4) = "ckr_" Then
+        ParentForm.ToggleAttachCheck Mid$(CardLabel.Name, 5)
+        Exit Sub
+    End If
+
+    If Left$(CardLabel.Name, 3) = "km_" Or Left$(CardLabel.Name, 3) = "ck_" Then
+        ParentForm.ToggleAttachCheck Mid$(CardLabel.Name, 4)
+        Exit Sub
+    End If
+
     If CardLabel.Name = "lblAttachmentTitle" Or _
         CardLabel.Name = "lblAttachmentAlert" Or _
         CardLabel.Name = "lblAttachmentCount" Then

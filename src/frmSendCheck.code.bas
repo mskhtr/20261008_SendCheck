@@ -1,34 +1,34 @@
 '========================================================
-' frmSendCheck - é€ä¿¡å‰ãƒã‚§ãƒƒã‚¯ UserForm
+' frmSendCheck - ‘—M‘Oƒ`ƒFƒbƒN UserForm
 '
-' å…¥ã‚Œæ–¹:
-'   ç©ºã® UserForm ã‚’ä½œã‚Šã€åå‰ã‚’ frmSendCheck ã«ã™ã‚‹ã€‚
-'   ãƒ•ã‚©ãƒ¼ãƒ ä¸Šã«ã¯éƒ¨å“ã‚’ç½®ã‹ãªã„ã€‚ã“ã®ã‚³ãƒ¼ãƒ‰ã‚’è²¼ã‚‹ã€‚
-'   èµ·å‹•æ™‚ã« VBA ãŒç”»é¢ã‚’è‡ªå‹•ç”Ÿæˆã™ã‚‹ã€‚
+' “ü‚ê•û:
+'   ‹ó‚Ì UserForm ‚ğì‚èA–¼‘O‚ğ frmSendCheck ‚É‚·‚éB
+'   ƒtƒH[ƒ€ã‚É‚Í•”•i‚ğ’u‚©‚È‚¢B‚±‚ÌƒR[ƒh‚ğ“\‚éB
+'   ‹N“®‚É VBA ‚ª‰æ–Ê‚ğ©“®¶¬‚·‚éB
 '
-' æƒ³å®š:
-'   ãƒ•ãƒ«HD 1920 x 1080
-'   Windowsè¡¨ç¤ºå€ç‡ 150%
+' ‘z’è:
+'   ƒtƒ‹HD 1920 x 1080
+'   Windows•\¦”{—¦ 150%
 '
-' UserFormã‚µã‚¤ã‚º:
-'   å¹… 800pt
-'   é«˜ã• 460pt
+' UserFormƒTƒCƒY:
+'   • 800pt
+'   ‚‚³ 460pt
 '========================================================
 Option Explicit
 
 '========================================================
-' é€ä¿¡å‰ãƒã‚§ãƒƒã‚¯ UserForm
+' ‘—M‘Oƒ`ƒFƒbƒN UserForm
 '
-' UserFormä¸Šã«ã¯ä½•ã‚‚éƒ¨å“ã‚’é…ç½®ã—ã¾ã›ã‚“ã€‚
-' èµ·å‹•æ™‚ã«VBAã§ç”»é¢ã‚’è‡ªå‹•ç”Ÿæˆã—ã¾ã™ã€‚
+' UserFormã‚É‚Í‰½‚à•”•i‚ğ”z’u‚µ‚Ü‚¹‚ñB
+' ‹N“®‚ÉVBA‚Å‰æ–Ê‚ğ©“®¶¬‚µ‚Ü‚·B
 '
-' æƒ³å®šï¼š
-'   ãƒ•ãƒ«HD 1920 x 1080
-'   Windowsè¡¨ç¤ºå€ç‡ 150%
+' ‘z’èF
+'   ƒtƒ‹HD 1920 x 1080
+'   Windows•\¦”{—¦ 150%
 '
-' UserFormã‚µã‚¤ã‚ºï¼š
-'   å¹… 800pt
-'   é«˜ã• 460pt
+' UserFormƒTƒCƒYF
+'   • 800pt
+'   ‚‚³ 460pt
 '========================================================
 
 Private mButtonHandlers As Collection
@@ -37,6 +37,7 @@ Private mAttachHandlers As Collection
 Private mScrollDrags As Collection
 Private mExpandedCard As MSForms.Frame
 Private mCategoryFilter As String
+Private mAddressFilter As String
 
 Private Type AttachItem
     Id As String
@@ -47,12 +48,14 @@ Private Type AttachItem
     Depth As Long
     Expandable As Boolean
     PasswordState As String
+    Checked As Boolean
 End Type
 
 Private mAttachItems() As AttachItem
 Private mAttachCount As Long
 Private mCollapsedIds As Collection
 Private mAttachExpanded As Boolean
+Private mCheckedPeople As Collection
 
 Private Const FORM_W As Single = 800
 Private Const FORM_H As Single = 460
@@ -64,19 +67,23 @@ Private Const ATTACH_H As Single = 78
 Private Const ATTACH_HEADER As Single = 22
 Private Const ATTACH_ROW As Single = 22
 
-' ãƒªã‚¹ãƒˆã®å³ã«ã€ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒãƒ¼å°‚ç”¨ã®æºã‚’ç©ºã‘ã‚‹
+' ƒJ[ƒh‚ÌŠÔŠuB‹·‚¢—ñ‚Í5ŒA—ñ‚ğL‚°‚½‚Æ‚«‚Í3Œ‚ªû‚Ü‚é
+Private Const CARD_GAP As Single = 3
+Private Const CARD_PAD As Single = 3
+
+' ƒŠƒXƒg‚Ì‰E‚ÉAƒXƒNƒ[ƒ‹ƒo[ê—p‚Ìa‚ğ‹ó‚¯‚é
 Private Const SCROLL_LANE As Single = 10
 
 Private Sub UserForm_Initialize()
 
     '--------------------------------------------
-    ' UserFormåŸºæœ¬è¨­å®š
+    ' UserFormŠî–{İ’è
     '--------------------------------------------
-    Me.Caption = "é€ä¿¡å‰ãƒã‚§ãƒƒã‚¯"
+    Me.Caption = "‘—M‘Oƒ`ƒFƒbƒN"
     Me.Width = FORM_W
     Me.Height = FORM_H
 
-    Me.StartUpPosition = 1       'ä¸­å¤®è¡¨ç¤º
+    Me.StartUpPosition = 1       '’†‰›•\¦
 
     Me.BackColor = RGB(244, 245, 247)
 
@@ -85,9 +92,10 @@ Private Sub UserForm_Initialize()
     Set mAttachHandlers = New Collection
     Set mScrollDrags = New Collection
     Set mCollapsedIds = New Collection
+    Set mCheckedPeople = New Collection
 
     '--------------------------------------------
-    ' ç”»é¢ã‚’ä½œæˆ
+    ' ‰æ–Ê‚ğì¬
     '--------------------------------------------
     CreateRecipientArea
 
@@ -95,7 +103,7 @@ Private Sub UserForm_Initialize()
 
     CreateFooter
 
-    ' ãƒã‚¦ã‚¹ãƒ›ã‚¤ãƒ¼ãƒ«ã§å®›å…ˆåˆ—ã‚’ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã™ã‚‹
+    ' ƒ}ƒEƒXƒzƒC[ƒ‹‚Åˆ¶æ—ñ‚ğƒXƒNƒ[ƒ‹‚·‚é
     WheelScroll_Attach Me
 
 End Sub
@@ -116,7 +124,7 @@ End Sub
 
 
 '========================================================
-' å®›å…ˆ3åˆ—
+' ˆ¶æ3—ñ
 '========================================================
 Private Sub CreateRecipientArea()
 
@@ -133,18 +141,22 @@ Private Sub CreateRecipientArea()
     colWidth = 246
 
     external = Array( _
-        Array("å±±ç”° å¤ªéƒ", "ABCæ ªå¼ä¼šç¤¾", "å–¶æ¥­æœ¬éƒ¨ç¬¬ä¸€å–¶æ¥­éƒ¨æ³•äººå–¶æ¥­å®¤", "èª²é•·", "taro.yamada.a1b@asahikasei.com", "To"), _
+        Array("R“c ‘¾˜Y", "ABCŠ”®‰ïĞ", "‰c‹Æ–{•”‘æˆê‰c‹Æ•”–@l‰c‹Æº", "‰Û’·", "taro.yamada.a1b@asahikasei.com", "To"), _
         Array("John Smith", "XYZ Corporation", "Global Sales Division Enterprise Accounts", "Manager", "john.smith.b2c@asahikasei.com", "Cc"))
     outside = Array( _
-        Array("ä½è—¤ ä¸€éƒ", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "ç”Ÿç”£æŠ€è¡“æœ¬éƒ¨ãƒ—ãƒ­ã‚»ã‚¹é©æ–°éƒ¨è¨­å‚™æŠ€è¡“å®¤", "ä¸»ä»»", "ichiro.sato.c3d@asahikasei.com", "To"), _
-        Array("ç”°ä¸­ ç¾å’²", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "çµŒå–¶ä¼ç”»æœ¬éƒ¨ã‚³ãƒ¼ãƒãƒ¬ãƒ¼ãƒˆçµ±æ‹¬éƒ¨ç·å‹™ä¼ç”»å®¤", "ä¿‚é•·", "misaki.tanaka.d4e@asahikasei.com", "Cc"), _
-        Array("é«˜æ©‹ å¥", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "è²¡å‹™çµŒç†æœ¬éƒ¨ã‚°ãƒ­ãƒ¼ãƒãƒ«çµŒç†éƒ¨é€£çµæ±ºç®—å®¤", "ä¸€èˆ¬", "ken.takahashi.e5f@asahikasei.com", "Bcc"))
+        Array("²“¡ ˆê˜Y", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "¶Y‹Zp–{•”ƒvƒƒZƒXŠvV•”İ”õ‹Zpº", "å”C", "ichiro.sato.c3d@asahikasei.com", "To"), _
+        Array("“c’† ”üç", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "Œo‰cŠé‰æ–{•”ƒR[ƒ|ƒŒ[ƒg“Š‡•”‘–±Šé‰æº", "ŒW’·", "misaki.tanaka.d4e@asahikasei.com", "Cc"), _
+        Array("‚‹´ Œ’", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "à–±Œo—–{•”ƒOƒ[ƒoƒ‹Œo—•”˜AŒ‹ŒˆZº", "ˆê”Ê", "ken.takahashi.e5f@asahikasei.com", "Bcc"))
     internal = Array( _
-        Array("éˆ´æœ¨ èŠ±å­", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "æƒ…å ±ã‚·ã‚¹ãƒ†ãƒ æœ¬éƒ¨æ¥­å‹™åŸºç›¤éƒ¨ã‚·ã‚¹ãƒ†ãƒ é‹ç”¨å®¤", "èª²é•·", "hanako.suzuki.f6g@asahikasei.com", "To"), _
-        Array("é«˜æ©‹ ç¿”", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "ç ”ç©¶é–‹ç™ºæœ¬éƒ¨ç´ æç§‘å­¦éƒ¨é«˜åˆ†å­ç ”ç©¶å®¤", "ä¸»ä»»", "sho.takahashi.g7h@asahikasei.com", "Cc"), _
-        Array("ä¼Šè—¤ å¥å¤ª", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "è£½é€ æœ¬éƒ¨ç”Ÿç”£ç®¡ç†éƒ¨å·¥ç¨‹è¨ˆç”»å®¤", "ä¿‚é•·", "kenta.ito.h8i@asahikasei.com", "Cc"), _
-        Array("æ¸¡è¾º ç¾é¦™", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "å“è³ªä¿è¨¼æœ¬éƒ¨è£½å“å®‰å…¨éƒ¨ç›£æŸ»æ¨é€²å®¤", "ä¸€èˆ¬", "mika.watanabe.i9j@asahikasei.com", "Bcc"), _
-        Array("å°æ— ç›´æ¨¹", "æ ªå¼ä¼šç¤¾ã‚µãƒ³ãƒ—ãƒ«", "äººäº‹æœ¬éƒ¨äººæé–‹ç™ºéƒ¨ç ”ä¿®ä¼ç”»å®¤", "ä¸€èˆ¬", "naoki.kobayashi.j0k@asahikasei.com", "Bcc"))
+        Array("—é–Ø ‰Ôq", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "î•ñƒVƒXƒeƒ€–{•”‹Æ–±Šî”Õ•”ƒVƒXƒeƒ€‰^—pº", "‰Û’·", "hanako.suzuki.f6g@asahikasei.com", "To"), _
+        Array("‚‹´ ãÄ", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "Œ¤‹†ŠJ”­–{•”‘fŞ‰ÈŠw•”‚•ªqŒ¤‹†º", "å”C", "sho.takahashi.g7h@asahikasei.com", "Cc"), _
+        Array("ˆÉ“¡ Œ’‘¾", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "»‘¢–{•”¶YŠÇ—•”H’öŒv‰æº", "ŒW’·", "kenta.ito.h8i@asahikasei.com", "Cc"), _
+        Array("“n•Ó ”ü", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "•i¿•ÛØ–{•”»•iˆÀ‘S•”ŠÄ¸„iº", "ˆê”Ê", "mika.watanabe.i9j@asahikasei.com", "Bcc"), _
+        Array("¬—Ñ ’¼÷", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "l––{•”lŞŠJ”­•”Œ¤CŠé‰æº", "ˆê”Ê", "naoki.kobayashi.j0k@asahikasei.com", "Bcc"), _
+        Array("’†‘º ˆ¨", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "‰c‹Æ–{•”‘æ“ñ‰c‹Æ•”Lˆæ–@l‰c‹Æº", "‰Û’·", "aoi.nakamura.k1l@asahikasei.com", "To"), _
+        Array("‰Á“¡ ˜@", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "–@–±EƒRƒ“ƒvƒ‰ƒCƒAƒ“ƒX–{•”Œ_–ñŠÇ—•”", "å”C", "ren.kato.l2m@asahikasei.com", "Cc"), _
+        Array("‹g“c ‚³‚­‚ç", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "ƒRƒ~ƒ…ƒjƒP[ƒVƒ‡ƒ“–{•”L•ñ•”•ñ“¹º", "ˆê”Ê", "sakura.yoshida.m3n@asahikasei.com", "Bcc"), _
+        Array("R–{ ‘å•ã", "Š”®‰ïĞƒTƒ“ƒvƒ‹", "’²’B–{•”Œ´Ş—¿•”w”ƒŠé‰æº", "ŒW’·", "daisuke.yamamoto.n4o@asahikasei.com", "To"))
 
     CountAddressTypes external, toCount, ccCount, bccCount
     CountAddressTypes outside, toCount, ccCount, bccCount
@@ -155,11 +167,11 @@ Private Sub CreateRecipientArea()
     areaHeight = (Me.InsideHeight - MARGIN - 28 - GAP - ATTACH_H) - GAP - topPos
 
     '--------------------------------------------
-    ' ç¤¾å¤–
+    ' ĞŠO
     '--------------------------------------------
     CreateCategoryFrame _
         "fraExternal", _
-        "ç¤¾å¤–", _
+        "ĞŠO", _
         "2", _
         MARGIN, _
         topPos, _
@@ -169,11 +181,11 @@ Private Sub CreateRecipientArea()
         external
 
     '--------------------------------------------
-    ' éƒ¨å¤–
+    ' •”ŠO
     '--------------------------------------------
     CreateCategoryFrame _
         "fraOutside", _
-        "éƒ¨å¤–", _
+        "•”ŠO", _
         "3", _
         MARGIN + colWidth + GAP, _
         topPos, _
@@ -183,18 +195,20 @@ Private Sub CreateRecipientArea()
         outside
 
     '--------------------------------------------
-    ' éƒ¨å†…
+    ' •”“à
     '--------------------------------------------
     CreateCategoryFrame _
         "fraInternal", _
-        "éƒ¨å†…", _
-        "5", _
+        "•”“à", _
+        "9", _
         MARGIN + (colWidth + GAP) * 2, _
         topPos, _
         colWidth, _
         areaHeight, _
         RGB(42, 96, 148), _
         internal
+
+    PlaceInternalCheckButton
 
 End Sub
 
@@ -230,13 +244,19 @@ Private Sub CreateRoleSummary( _
 
     Dim lbl As MSForms.Label
     Dim texts(1 To 3) As String
+    Dim keys(1 To 3) As String
     Dim widths(1 To 3) As Single
     Dim i As Long
     Dim leftPos As Single
+    Dim textW As Single
+    Dim visualGap As Single
 
-    texts(1) = "To " & toCount
-    texts(2) = "Cc " & ccCount
-    texts(3) = "Bcc " & bccCount
+    keys(1) = "To"
+    keys(2) = "Cc"
+    keys(3) = "Bcc"
+    texts(1) = AddressTypeCaption(keys(1)) & " " & toCount
+    texts(2) = AddressTypeCaption(keys(2)) & " " & ccCount
+    texts(3) = AddressTypeCaption(keys(3)) & " " & bccCount
     widths(1) = 52
     widths(2) = 52
     widths(3) = 60
@@ -245,26 +265,182 @@ Private Sub CreateRoleSummary( _
 
     For i = 1 To 3
         Set lbl = AddLabel( _
-            "roleSummary_" & i, _
+            "role" & keys(i), _
             texts(i), _
             leftPos, 6, widths(i), 20)
 
         With lbl
+            .Tag = keys(i)
             .Font.Name = "Meiryo UI"
             .Font.Size = 10
             .Font.Bold = True
             .ForeColor = RGB(55, 55, 60)
             .BackStyle = fmBackStyleTransparent
+            .ControlTipText = AddressTypeCaption(keys(i)) & " ‚Ìl‚¾‚¯•\¦"
         End With
 
-        leftPos = leftPos + widths(i) + 14
+        RegisterCardClick lbl
+        textW = MeasureLabelWidth(lbl)
+        lbl.Width = textW + 2
+        lbl.Height = 20
+        visualGap = (widths(i) - lbl.Width) + 14
+        If visualGap < 14 Then visualGap = 14
+        leftPos = leftPos + lbl.Width + (visualGap * 2 / 3)
+    Next i
+
+    ' BCC ‚Ì‰E‚Ì‹ó”’BƒNƒŠƒbƒN‚Å•\¦‚ğ‰Šú‰»‚·‚é
+    Set lbl = AddLabel( _
+        "lblCheckRemain", _
+        "", _
+        Me.InsideWidth - MARGIN - 20, 6, 20, 20)
+
+    With lbl
+        .Font.Name = "Meiryo UI"
+        .Font.Size = 10
+        .Font.Bold = False
+        .ForeColor = RGB(176, 64, 60)
+        .BackStyle = fmBackStyleTransparent
+        .WordWrap = False
+        .TextAlign = fmTextAlignCenter
+    End With
+
+    Set lbl = AddLabel( _
+        "lblHeaderBlank", _
+        "", _
+        leftPos, 0, Me.InsideWidth - leftPos, 28)
+
+    With lbl
+        .BackStyle = fmBackStyleTransparent
+        .ControlTipText = "•\¦‚ğ‰Šú‰»"
+    End With
+
+    RegisterCardClick lbl
+
+    Set lbl = AddLabel( _
+        "lblHeaderBlankRight", _
+        "", _
+        Me.InsideWidth - 8, 0, 8, 28)
+
+    With lbl
+        .BackStyle = fmBackStyleTransparent
+        .ControlTipText = Me.Controls("lblHeaderBlank").ControlTipText
+    End With
+
+    RegisterCardClick lbl
+
+    UpdateRoleSummaryStyle
+
+End Sub
+
+
+Private Function AddressTypeCaption(ByVal addressType As String) As String
+
+    Select Case addressType
+        Case "Cc"
+            AddressTypeCaption = "CC"
+        Case "Bcc"
+            AddressTypeCaption = "BCC"
+        Case Else
+            AddressTypeCaption = addressType
+    End Select
+
+End Function
+
+
+Public Sub ToggleAddressFilter(ByVal addressType As String)
+
+    If mAddressFilter = addressType Then
+        mAddressFilter = ""
+    Else
+        mAddressFilter = addressType
+    End If
+
+    ApplyAddressFilter
+
+End Sub
+
+
+Private Sub ApplyAddressFilter()
+
+    Dim names As Variant
+    Dim i As Long
+    Dim fra As MSForms.Frame
+    Dim list As MSForms.Frame
+    Dim ctl As Object
+    Dim shown As Long
+
+    If Not mExpandedCard Is Nothing Then
+        If mAddressFilter <> "" Then
+            If StrComp(CStr(mExpandedCard.Tag), mAddressFilter, vbTextCompare) <> 0 Then
+                ApplyCardLayout mExpandedCard, False
+                Set mExpandedCard = Nothing
+            End If
+        End If
+    End If
+
+    names = Array("fraExternal", "fraOutside", "fraInternal")
+
+    For i = LBound(names) To UBound(names)
+        Set fra = Me.Controls(CStr(names(i)))
+        Set list = fra.Controls(fra.Name & "_list")
+        shown = 0
+
+        For Each ctl In list.Controls
+            If TypeName(ctl) = "Frame" Then
+                If mAddressFilter = "" Or _
+                    StrComp(CStr(ctl.Tag), mAddressFilter, vbTextCompare) = 0 Then
+                    ctl.Visible = True
+                    shown = shown + 1
+                Else
+                    ctl.Visible = False
+                End If
+            End If
+        Next ctl
+
+        fra.Controls(fra.Name & "_count").Caption = CStr(shown)
+        ReflowCards list
+        list.ScrollTop = 0
+        SyncScrollThumb list
+    Next i
+
+    UpdateRoleSummaryStyle
+
+End Sub
+
+
+Private Sub UpdateRoleSummaryStyle()
+
+    Dim keys As Variant
+    Dim i As Long
+    Dim lbl As MSForms.Label
+    Dim selected As Boolean
+
+    keys = Array("To", "Cc", "Bcc")
+
+    For i = LBound(keys) To UBound(keys)
+        Set lbl = Me.Controls("role" & CStr(keys(i)))
+        selected = (mAddressFilter = CStr(keys(i)))
+
+        If mAddressFilter = "" Or selected Then
+            lbl.ForeColor = RGB(55, 55, 60)
+        Else
+            lbl.ForeColor = RGB(180, 180, 186)
+        End If
+
+        lbl.Font.Underline = selected
+
+        If selected Then
+            lbl.ControlTipText = "‘Sˆõ‚ğ•\¦"
+        Else
+            lbl.ControlTipText = AddressTypeCaption(CStr(keys(i))) & " ‚Ìl‚¾‚¯•\¦"
+        End If
     Next i
 
 End Sub
 
 
 '========================================================
-' ã‚«ãƒ†ã‚´ãƒªFrame
+' ƒJƒeƒSƒŠFrame
 '========================================================
 Private Sub CreateCategoryFrame( _
     ByVal frameName As String, _
@@ -284,11 +460,14 @@ Private Sub CreateCategoryFrame( _
     Dim i As Long
     Dim cardTop As Single
     Dim headerHeight As Single
+    Dim person As Object
+    Dim people() As MSForms.Frame
+    Dim n As Long
 
     headerHeight = 34
 
     '--------------------------------------------
-    ' å¤–æ ã€‚ã‚¿ã‚¤ãƒˆãƒ«ã¯ã“ã“ã«ç½®ãã€ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã—ãªã„
+    ' ŠO˜gBƒ^ƒCƒgƒ‹‚Í‚±‚±‚É’u‚«AƒXƒNƒ[ƒ‹‚µ‚È‚¢
     '--------------------------------------------
     Set fra = Me.Controls.Add( _
         "Forms.Frame.1", _
@@ -313,7 +492,7 @@ Private Sub CreateCategoryFrame( _
     End With
 
     '--------------------------------------------
-    ' ã‚«ãƒ†ã‚´ãƒªã‚¿ã‚¤ãƒˆãƒ«
+    ' ƒJƒeƒSƒŠƒ^ƒCƒgƒ‹
     '--------------------------------------------
     Set lbl = fra.Controls.Add( _
         "Forms.Label.1", _
@@ -337,7 +516,7 @@ Private Sub CreateCategoryFrame( _
         .BackStyle = fmBackStyleTransparent
     End With
 
-    'äººæ•°
+    'l”
     Set lbl = fra.Controls.Add( _
         "Forms.Label.1", _
         frameName & "_count", _
@@ -363,7 +542,7 @@ Private Sub CreateCategoryFrame( _
     End With
 
     '--------------------------------------------
-    ' å®›å…ˆã ã‘ã‚’ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã™ã‚‹é ˜åŸŸ
+    ' ˆ¶æ‚¾‚¯‚ğƒXƒNƒ[ƒ‹‚·‚é—Ìˆæ
     '--------------------------------------------
     Set list = fra.Controls.Add( _
         "Forms.Frame.1", _
@@ -389,9 +568,9 @@ Private Sub CreateCategoryFrame( _
     End With
 
     '--------------------------------------------
-    ' å®›å…ˆã‚«ãƒ¼ãƒ‰
+    ' ˆ¶æƒJ[ƒh
     '--------------------------------------------
-    cardTop = 6
+    cardTop = CARD_PAD
 
     For i = LBound(recipients) To UBound(recipients)
 
@@ -407,26 +586,32 @@ Private Sub CreateCategoryFrame( _
             recipients(i)(5), _
             titleColor
 
-        cardTop = cardTop + 100
-
     Next i
 
-    '--------------------------------------------
-    ' ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«é ˜åŸŸ
-    '--------------------------------------------
-    list.ScrollHeight = cardTop + 5
-    SyncScrollThumb list
+    ' —ñ‚Ì‚‚³‚É‡‚í‚¹‚ÄA5Œ•ª‚ÌƒJ[ƒh‚‚³‚É‚·‚é
+    n = 0
+    For Each person In list.Controls
+        If TypeName(person) = "Frame" Then
+            n = n + 1
+            ReDim Preserve people(1 To n)
+            Set people(n) = person
+        End If
+    Next
+
+    For i = 1 To n
+        ApplyCardLayout people(i), False
+    Next i
 
     RegisterCardClick fra
     RegisterCardClick fra.Controls(frameName & "_title")
     RegisterCardClick fra.Controls(frameName & "_count")
-    fra.Controls(frameName & "_title").ControlTipText = "ã“ã®åˆ—ã ã‘è¡¨ç¤º"
+    fra.Controls(frameName & "_title").ControlTipText = "‚±‚Ì—ñ‚¾‚¯•\¦"
 
 End Sub
 
 
 '========================================================
-' äººç‰©ã‚«ãƒ¼ãƒ‰
+' l•¨ƒJ[ƒh
 '========================================================
 Private Sub CreatePersonCard( _
     ByVal parentFrame As MSForms.Frame, _
@@ -449,7 +634,7 @@ Private Sub CreatePersonCard( _
     cardWidth = parentFrame.Width - 16
 
     '--------------------------------------------
-    ' ã‚«ãƒ¼ãƒ‰æœ¬ä½“
+    ' ƒJ[ƒh–{‘Ì
     '--------------------------------------------
     Set card = parentFrame.Controls.Add( _
         "Forms.Frame.1", _
@@ -463,6 +648,7 @@ Private Sub CreatePersonCard( _
         .Height = 92
 
         .Caption = ""
+        .Tag = addressType
 
         .BackColor = RGB(255, 255, 255)
 
@@ -472,7 +658,7 @@ Private Sub CreatePersonCard( _
     End With
 
     '--------------------------------------------
-    ' åˆ—ã®ä¸Šã‹ã‚‰ã®ç•ªå·
+    ' —ñ‚Ìã‚©‚ç‚Ì”Ô†
     '--------------------------------------------
     Set lbl = card.Controls.Add( _
         "Forms.Label.1", _
@@ -491,19 +677,19 @@ Private Sub CreatePersonCard( _
         .Font.Size = 8
         .Font.Bold = True
 
-        .ForeColor = RGB(255, 255, 255)
-        .BackColor = categoryColor
+        .ForeColor = categoryColor
+        .BackStyle = fmBackStyleTransparent
 
-        .TextAlign = fmTextAlignCenter
+        .TextAlign = fmTextAlignLeft
 
         .BorderStyle = fmBorderStyleNone
     End With
 
     '--------------------------------------------
-    ' ãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«å†™çœŸ
+    ' ƒvƒƒtƒB[ƒ‹Ê^
     '
-    ' ç¾åœ¨ã¯ä»®è¡¨ç¤ºã€‚
-    ' å¾Œã§Microsoft 365ã®ãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«ç”»åƒã«ç½®æ›ã™ã‚‹ã€‚
+    ' Œ»İ‚Í‰¼•\¦B
+    ' Œã‚ÅMicrosoft 365‚ÌƒvƒƒtƒB[ƒ‹‰æ‘œ‚É’uŠ·‚·‚éB
     '--------------------------------------------
     Set photo = card.Controls.Add( _
         "Forms.Label.1", _
@@ -517,6 +703,7 @@ Private Sub CreatePersonCard( _
         .Height = 42
 
         .Caption = GetInitials(personName)
+        .Tag = .Caption
 
         .Font.Name = "Meiryo UI"
         .Font.Size = 12
@@ -530,8 +717,39 @@ Private Sub CreatePersonCard( _
         .BorderStyle = fmBorderStyleNone
     End With
 
+    ' Šm”Fƒ`ƒFƒbƒNB‰æ‘œ‚Ì‰E‰º‚ÉA”’’n‚Ì¬‚³‚¢ˆó‚ğd‚Ë‚é
+    Set lbl = card.Controls.Add( _
+        "Forms.Label.1", _
+        "phshd_" & cardNo, _
+        True)
+
+    With lbl
+        .Caption = ""
+        .Visible = False
+        .BackStyle = fmBackStyleTransparent
+        .BorderStyle = fmBorderStyleNone
+    End With
+
+    Set lbl = card.Controls.Add( _
+        "Forms.Label.1", _
+        "phchk_" & cardNo, _
+        True)
+
+    With lbl
+        .Caption = ChrW(&HEC61)
+        .Visible = False
+        .Font.Name = "Segoe MDL2 Assets"
+        .Font.Bold = False
+        .Font.Size = 14
+        .ForeColor = RGB(255, 255, 255)
+        .BackStyle = fmBackStyleTransparent
+        .TextAlign = fmTextAlignCenter
+        .BorderStyle = fmBorderStyleNone
+        .WordWrap = False
+    End With
+
     '--------------------------------------------
-    ' æ°å
+    ' –¼
     '--------------------------------------------
     Set lbl = card.Controls.Add( _
         "Forms.Label.1", _
@@ -556,33 +774,35 @@ Private Sub CreatePersonCard( _
     End With
 
     '--------------------------------------------
-    ' ä¼šç¤¾å
-    ' ç¤¾å¤–ã ã‘èµ¤ã®å¤ªå­—
+    ' ‰ïĞ–¼
+    ' ĞŠO‚¾‚¯Ô‚Ì‘¾š
     '--------------------------------------------
     If categoryColor = RGB(176, 64, 60) Then
         AddCardDetail card, "company_" & cardNo, companyName, 60, 22, cardWidth - 68, categoryColor, True
     Else
         AddCardDetail card, "company_" & cardNo, companyName, 60, 22, cardWidth - 68, RGB(70, 70, 76)
     End If
+    card.Controls("company_" & cardNo).Tag = companyName
 
     '--------------------------------------------
-    ' éƒ¨ç½²å
+    ' •”–¼
     '--------------------------------------------
     AddCardDetail card, "dept_" & cardNo, departmentName, 60, 36, cardWidth - 68, RGB(110, 110, 116)
+    card.Controls("dept_" & cardNo).Tag = departmentName
 
     '--------------------------------------------
-    ' å½¹è·
+    ' –ğE
     '--------------------------------------------
     AddCardDetail card, "title_" & cardNo, jobTitle, 60, 50, cardWidth - 68, RGB(110, 110, 116)
 
     '--------------------------------------------
-    ' ãƒ¡ãƒ¼ãƒ«ã‚¢ãƒ‰ãƒ¬ã‚¹
+    ' ƒ[ƒ‹ƒAƒhƒŒƒX
     '--------------------------------------------
     AddCardDetail card, "mail_" & cardNo, emailAddress, 60, 64, cardWidth - 68, RGB(140, 140, 146)
 
     '--------------------------------------------
     ' To / CC / BCC
-    ' è¨­å®šã•ã‚Œã¦ã„ã‚‹ã‚‚ã®ã ã‘å¼·èª¿ã—ã€æ®‹ã‚Šã¯è–„ãã™ã‚‹
+    ' İ’è‚³‚ê‚Ä‚¢‚é‚à‚Ì‚¾‚¯‹­’²‚µAc‚è‚Í”–‚­‚·‚é
     '--------------------------------------------
     CreateAddressTypeMarks card, cardNo, cardWidth, addressType, categoryColor
 
@@ -706,11 +926,11 @@ Private Sub ApplyCategoryFilter()
             If mCategoryFilter = "" Then
                 fra.Left = MARGIN + i * (colWidth + GAP)
                 SizeCategoryColumn fra, colWidth
-                fra.Controls(fra.Name & "_title").ControlTipText = "ã“ã®åˆ—ã ã‘è¡¨ç¤º"
+                fra.Controls(fra.Name & "_title").ControlTipText = "‚±‚Ì—ñ‚¾‚¯•\¦"
             Else
                 fra.Left = MARGIN
                 SizeCategoryColumn fra, fullWidth
-                fra.Controls(fra.Name & "_title").ControlTipText = "3åˆ—ã«æˆ»ã™"
+                fra.Controls(fra.Name & "_title").ControlTipText = "3—ñ‚É–ß‚·"
             End If
         Else
             fra.Visible = False
@@ -755,9 +975,14 @@ Private Sub SizeCategoryColumn( _
     Next ctl
 
     For i = 1 To n
-        cards(i).Width = list.Width - 16
-        ApplyCardLayout cards(i), _
-            (Not mExpandedCard Is Nothing) And (mExpandedCard Is cards(i))
+        If list.Width > 400 Then
+            cards(i).Width = (list.Width - 16 - GAP) / 2
+            ApplyCardLayout cards(i), True
+        Else
+            cards(i).Width = list.Width - 16
+            ApplyCardLayout cards(i), _
+                (Not mExpandedCard Is Nothing) And (mExpandedCard Is cards(i))
+        End If
     Next i
 
 End Sub
@@ -765,7 +990,44 @@ End Sub
 
 Private Function CardIsWide(ByVal card As MSForms.Frame) As Boolean
 
-    CardIsWide = (card.Width > 400)
+    ' ƒJ[ƒh©‘Ì‚Å‚Í‚È‚­A—ñ‚ğL‚°‚½‚©‚Ç‚¤‚©‚ğŒ©‚é
+    CardIsWide = (card.Parent.Width > 400)
+
+End Function
+
+
+Private Function CardSlotCount(ByVal wide As Boolean) As Long
+
+    If wide Then
+        CardSlotCount = 3
+    Else
+        CardSlotCount = 5
+    End If
+
+End Function
+
+
+Private Function ListViewHeight(ByVal list As MSForms.Frame) As Single
+
+    On Error Resume Next
+    ListViewHeight = list.InsideHeight
+    On Error GoTo 0
+    If ListViewHeight < 20 Then ListViewHeight = list.Height
+
+End Function
+
+
+' w’èŒ”‚Ò‚Á‚½‚èû‚Ü‚éƒJ[ƒh‚‚³
+Private Function FittedCardHeight( _
+    ByVal list As MSForms.Frame, _
+    ByVal slots As Long) As Single
+
+    Dim view As Single
+
+    If slots < 1 Then slots = 1
+    view = ListViewHeight(list)
+    FittedCardHeight = (view - CARD_PAD * 2 - CARD_GAP * (slots - 1)) / slots
+    If FittedCardHeight < 34 Then FittedCardHeight = 34
 
 End Function
 
@@ -782,41 +1044,74 @@ Private Sub RepositionCardChrome( _
     Dim nameLabel As MSForms.Label
     Dim wide As Boolean
 
+    Dim photoSize As Single
+
     wide = CardIsWide(card)
 
     Set photo = card.Controls("photo_" & cardNo)
     Set nameLabel = card.Controls("name_" & cardNo)
 
     If wide Then
-        photo.Left = 16
-        photo.Top = 20
-        photo.Width = 72
-        photo.Height = 72
-        photo.Font.Size = 18
-
-        nameLabel.Left = 104
-        nameLabel.Top = 12
-        nameWidth = card.Width - 206
+        photoSize = card.Height - 18
+        If photoSize > 48 Then photoSize = 48
+        If photoSize < 36 Then photoSize = 36
+        photo.Left = 18
+        photo.Font.Size = 14
+        nameLabel.Top = 4
+        nameLabel.Height = 14
+        nameLabel.Font.Size = 10
     Else
-        photo.Left = 8
-        photo.Top = 25
-        photo.Width = 42
-        photo.Height = 42
-        photo.Font.Size = 12
-
-        nameLabel.Left = 60
-        nameLabel.Top = 6
-        nameWidth = card.Width - 158
+        photoSize = card.Height - 14
+        If photoSize > 28 Then photoSize = 28
+        If photoSize < 18 Then photoSize = 18
+        photo.Left = 16
+        photo.Font.Size = 9
+        nameLabel.Top = 1
+        nameLabel.Height = 12
+        nameLabel.Font.Size = 9
     End If
 
-    If nameWidth < 40 Then nameWidth = 40
+    photo.Width = photoSize
+    photo.Height = photoSize
+    If photo.Height > card.Height - 4 Then
+        photo.Height = card.Height - 4
+        photo.Width = photo.Height
+    End If
+    If photo.Height < 16 Then
+        photo.Height = 16
+        photo.Width = 16
+    End If
+    photo.Top = (card.Height - photo.Height) / 2
+    If photo.Top < 2 Then photo.Top = 2
+
+    nameLabel.Left = photo.Left + photo.Width + 6
+    nameWidth = card.Width - 94 - nameLabel.Left - 4
+    If nameWidth < 36 Then nameWidth = 36
     nameLabel.Width = nameWidth
+
+    ' ”Ô†‚ÍÊ^‚Ì¶A”’’n‚Ìã‚ÉF•¶š‚Å’u‚­
+    With card.Controls("no_" & cardNo)
+        .Left = 1
+        .Top = 2
+        .Width = 14
+        .Height = 12
+        .BackStyle = fmBackStyleTransparent
+        .ForeColor = photo.BackColor
+        .Font.Bold = True
+        .Font.Size = 8
+        .TextAlign = fmTextAlignLeft
+    End With
+
+    PlacePersonCheck card
 
     kinds = Array("To", "Cc", "Bcc")
     leftPos = card.Width - 94
 
     For i = LBound(kinds) To UBound(kinds)
-        card.Controls("type_" & cardNo & "_" & kinds(i)).Left = leftPos
+        With card.Controls("type_" & cardNo & "_" & kinds(i))
+            .Left = leftPos
+            .Top = nameLabel.Top
+        End With
         leftPos = leftPos + 30
     Next i
 
@@ -824,6 +1119,9 @@ End Sub
 
 
 Public Sub ToggleCard(ByVal card As MSForms.Frame)
+
+    ' —ñ‚ğL‚°‚½ó‘Ô‚ÍAÅ‰‚©‚ç‘SƒJ[ƒh‚ğ“WŠJ‚µ‚Ä‚¢‚é
+    If CardIsWide(card) Then Exit Sub
 
     If Not mExpandedCard Is Nothing Then
         If mExpandedCard Is card Then
@@ -852,32 +1150,20 @@ Private Sub ApplyCardLayout( _
     Dim topPos As Single
     Dim minHeight As Single
     Dim fields(1 To 4) As String
-    Dim tops(1 To 4) As Single
     Dim i As Long
     Dim lbl As MSForms.Label
     Dim wide As Boolean
+    Dim nameLabel As MSForms.Label
+    Dim photo As MSForms.Label
 
     cardNo = Mid(card.Name, 6)
     wide = CardIsWide(card)
+    minHeight = FittedCardHeight(card.Parent, CardSlotCount(wide))
+    card.Height = minHeight
     RepositionCardChrome card, cardNo
 
-    If wide Then
-        textLeft = 104
-        textWidth = card.Width - textLeft - 12
-        minHeight = 104
-        tops(1) = 32
-        tops(2) = 50
-        tops(3) = 68
-        tops(4) = 86
-    Else
-        textLeft = 60
-        textWidth = card.Width - 68
-        minHeight = 92
-        tops(1) = 22
-        tops(2) = 36
-        tops(3) = 50
-        tops(4) = 64
-    End If
+    Set nameLabel = card.Controls("name_" & cardNo)
+    textLeft = nameLabel.Left
 
     fields(1) = "company_" & cardNo
     fields(2) = "dept_" & cardNo
@@ -885,34 +1171,54 @@ Private Sub ApplyCardLayout( _
     fields(4) = "mail_" & cardNo
 
     If expanded Then
-        topPos = tops(1)
+        card.Controls("company_" & cardNo).Caption = CStr(card.Controls("company_" & cardNo).Tag)
+        textWidth = card.Width - textLeft - 12
+        If textWidth < 40 Then textWidth = 40
+        topPos = nameLabel.Top + nameLabel.Height + 2
 
         For i = 1 To 4
             Set lbl = card.Controls(fields(i))
+            lbl.Visible = True
             lbl.Left = textLeft
             lbl.Top = topPos
             lbl.WordWrap = True
             lbl.AutoSize = False
             lbl.Width = textWidth
             lbl.Height = WrappedLineCount(lbl, textWidth) * 14
-            topPos = lbl.Top + lbl.Height + 2
+            topPos = lbl.Top + lbl.Height + 1
         Next i
 
-        card.Height = topPos + 6
+        card.Height = topPos + 4
         If card.Height < minHeight Then card.Height = minHeight
-    Else
-        For i = 1 To 4
-            Set lbl = card.Controls(fields(i))
-            lbl.Visible = True
-            lbl.AutoSize = False
-            lbl.WordWrap = False
-            lbl.Left = textLeft
-            lbl.Top = tops(i)
-            lbl.Width = textWidth
-            lbl.Height = 14
-        Next i
 
-        card.Height = minHeight
+        ' “WŠJŒã‚ÌƒJ[ƒh’†‰›‚æ‚è­‚µãBã‚ÉŠñ‚è‚·‚¬‚È‚¢‚æ‚¤‚É‰º‚°‚é
+        If wide Then
+            Set photo = card.Controls("photo_" & cardNo)
+            photo.Top = (card.Height - photo.Height) / 2 - 6
+            If photo.Top < 12 Then photo.Top = 12
+            If photo.Top + photo.Height > card.Height - 8 Then
+                photo.Top = card.Height - photo.Height - 8
+            End If
+            PlacePersonCheck card
+        End If
+    Else
+        ' ‰Šú•\¦‚Íu‰ïĞ–¼/•”–¼v‚ğ1sBŒ©Ø‚ê‚Í‚»‚Ì‚Ü‚Ü
+        textWidth = card.Width - textLeft - 8
+        If textWidth < 40 Then textWidth = 40
+
+        Set lbl = card.Controls("company_" & cardNo)
+        lbl.Caption = CStr(lbl.Tag) & "/" & CStr(card.Controls("dept_" & cardNo).Tag)
+        lbl.Visible = True
+        lbl.WordWrap = False
+        lbl.AutoSize = False
+        lbl.Left = textLeft
+        lbl.Top = nameLabel.Top + nameLabel.Height + 1
+        lbl.Width = textWidth
+        lbl.Height = 12
+
+        card.Controls("dept_" & cardNo).Visible = False
+        card.Controls("title_" & cardNo).Visible = False
+        card.Controls("mail_" & cardNo).Visible = False
     End If
 
     ReflowCards card.Parent
@@ -953,6 +1259,10 @@ Private Sub ReflowCards(ByVal list As MSForms.Frame)
     Dim j As Long
     Dim tmp As MSForms.Frame
     Dim topPos As Single
+    Dim visibleCards() As MSForms.Frame
+    Dim v As Long
+    Dim rowH As Single
+    Dim left0 As Single
 
     n = 0
     For Each ctl In list.Controls
@@ -982,13 +1292,46 @@ Private Sub ReflowCards(ByVal list As MSForms.Frame)
         Next j
     Next i
 
-    topPos = 6
+    v = 0
     For i = 1 To n
-        cards(i).Top = topPos
-        topPos = topPos + cards(i).Height + 8
+        If cards(i).Visible Then
+            v = v + 1
+            ReDim Preserve visibleCards(1 To v)
+            Set visibleCards(v) = cards(i)
+        End If
     Next i
 
-    list.ScrollHeight = topPos + 5
+    left0 = 8
+    topPos = CARD_PAD
+
+    If list.Width > 400 And v > 0 Then
+        i = 1
+        Do While i <= v
+            visibleCards(i).Left = left0
+            visibleCards(i).Top = topPos
+            rowH = visibleCards(i).Height
+            If i < v Then
+                visibleCards(i + 1).Left = left0 + visibleCards(i).Width + GAP
+                visibleCards(i + 1).Top = topPos
+                If visibleCards(i + 1).Height > rowH Then
+                    rowH = visibleCards(i + 1).Height
+                End If
+                i = i + 2
+            Else
+                i = i + 1
+            End If
+            topPos = topPos + rowH + CARD_GAP
+        Loop
+    Else
+        For i = 1 To v
+            visibleCards(i).Left = left0
+            visibleCards(i).Top = topPos
+            topPos = topPos + visibleCards(i).Height + CARD_GAP
+        Next i
+    End If
+
+    If v > 0 And topPos > CARD_PAD Then topPos = topPos - CARD_GAP
+    list.ScrollHeight = topPos + CARD_PAD
     SyncScrollThumb list
 
 End Sub
@@ -1061,7 +1404,7 @@ Private Sub CreateAddressTypeMarks( _
             .Width = markWidth
             .Height = 16
 
-            .Caption = kinds(i)
+            .Caption = AddressTypeCaption(kinds(i))
 
             .Font.Name = "Meiryo UI"
             .Font.Bold = selected
@@ -1092,8 +1435,8 @@ End Sub
 
 
 '========================================================
-' æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«
-' ãƒ€ãƒŸãƒ¼ã€‚ZIP ã®è¡Œã‚’æŠ¼ã™ã¨ã€ãã®ä¸­èº«ã ã‘é–‹ãã€‚
+' “Y•tƒtƒ@ƒCƒ‹
+' ƒ_ƒ~[BZIP ‚Ìs‚ğ‰Ÿ‚·‚ÆA‚»‚Ì’†g‚¾‚¯ŠJ‚­B
 '========================================================
 Private Sub CreateAttachmentArea()
 
@@ -1136,8 +1479,8 @@ Private Sub CreateAttachmentArea()
         .Width = 220
         .Height = 18
 
-        .Caption = ChrW(&H25B8) & "  æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«"
-        .ControlTipText = "ã‚¯ãƒªãƒƒã‚¯ã§ä¸€è¦§ã‚’ä¸Šã¾ã§åºƒã’ã‚‹"
+        .Caption = ChrW(&H25B8) & "  “Y•tƒtƒ@ƒCƒ‹"
+        .ControlTipText = "ƒNƒŠƒbƒN‚Åˆê——‚ğã‚Ü‚ÅL‚°‚é"
 
         .Font.Name = "Meiryo UI"
         .Font.Size = 10
@@ -1159,7 +1502,7 @@ Private Sub CreateAttachmentArea()
         .Width = 280
         .Height = 16
 
-        .Caption = "è¦ç¢ºèªã®æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«ã‚ã‚Š"
+        .Caption = "—vŠm”F‚Ì“Y•tƒtƒ@ƒCƒ‹‚ ‚è"
         .Visible = False
 
         .Font.Name = "Meiryo UI"
@@ -1182,7 +1525,7 @@ Private Sub CreateAttachmentArea()
         .Width = 42
         .Height = 16
 
-        .Caption = LeafFileCount() & "ä»¶"
+        .Caption = LeafFileCount() & "Œ"
 
         .Font.Name = "Meiryo UI"
         .Font.Size = 8
@@ -1253,29 +1596,29 @@ Private Sub LoadDummyAttachments()
     mAttachCount = 0
     ExpandAllAttachments
 
-    ' PDF ã ã‘
-    AddAttachItem "a1", "", "è¦‹ç©.pdf", "PDF", "pdf", 0, False
+    ' PDF ‚¾‚¯
+    AddAttachItem "a1", "", "Œ©Ï.pdf", "PDF", "pdf", 0, False
 
-    ' æ‹¡å¼µå­ãŒå¤‰ã‚ã£ãŸ ZIPã€‚ä¸­ã¯ PDF ã ã‘ã€‚ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã¯æœªè¨­å®š
-    AddAttachItem "a2", "", "è³‡æ–™.zi_", "ä¸­ã¯ PDF  3ä»¶", "zipok", 0, True, "none"
-    AddAttachItem "a2a", "a2", "è¡¨ç´™.pdf", "PDF", "pdf", 1, False
-    AddAttachItem "a2b", "a2", "æœ¬ç·¨.pdf", "PDF", "pdf", 1, False
-    AddAttachItem "a2c", "a2", "åˆ¥ç´™.pdf", "PDF", "pdf", 1, False
+    ' Šg’£q‚ª•Ï‚í‚Á‚½ ZIPB’†‚Í PDF ‚¾‚¯BƒpƒXƒ[ƒh‚Í–¢İ’è
+    AddAttachItem "a2", "", "‘—¿.zi_", "’†‚Í PDF  3Œ", "zipok", 0, True, "none"
+    AddAttachItem "a2a", "a2", "•\†.pdf", "PDF", "pdf", 1, False
+    AddAttachItem "a2b", "a2", "–{•Ò.pdf", "PDF", "pdf", 1, False
+    AddAttachItem "a2c", "a2", "•Ê†.pdf", "PDF", "pdf", 1, False
 
-    ' å…¥ã‚Œå­ ZIPã€‚å™¨ã¯åˆ¤å®šã«å‡ºã•ãªã„ã€‚ä¸­ã« PDF ä»¥å¤–ãŒã‚ã‚‹ã€‚ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã¯æœªè¨­å®š
-    AddAttachItem "a3", "", "ææ¡ˆ.zip", "PDFä»¥å¤–ã‚ã‚Š", "zipbad", 0, True, "none"
+    ' “ü‚êq ZIPBŠí‚Í”»’è‚Éo‚³‚È‚¢B’†‚É PDF ˆÈŠO‚ª‚ ‚éBƒpƒXƒ[ƒh‚Í–¢İ’è
+    AddAttachItem "a3", "", "’ñˆÄ.zip", "PDFˆÈŠO‚ ‚è", "zipbad", 0, True, "none"
     AddAttachItem "a3a", "a3", "cover.pdf", "PDF", "pdf", 1, False
-    AddAttachItem "a3b", "a3", "å†…è¨³.zip", "å™¨", "container", 1, True, "none"
-    AddAttachItem "a3b1", "a3b", "è¦‹ç©.pdf", "PDF", "pdf", 2, False
-    AddAttachItem "a3b2", "a3b", "ä»•æ§˜.docx", "PDFä»¥å¤–", "other", 2, False
+    AddAttachItem "a3b", "a3", "“à–ó.zip", "Ší", "container", 1, True, "none"
+    AddAttachItem "a3b1", "a3b", "Œ©Ï.pdf", "PDF", "pdf", 2, False
+    AddAttachItem "a3b2", "a3b", "d—l.docx", "PDFˆÈŠO", "other", 2, False
 
-    ' ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ä»˜ãã ãŒã€ä¸­èº«ã¯ç¢ºèªã§ããªã„
-    AddAttachItem "a4", "", "å¥‘ç´„.zip", "", "password", 0, True, "set"
-    AddAttachItem "a4n", "a4", "ä¸­èº«ã¯ç¢ºèªã§ãã¾ã›ã‚“", "", "note", 1, False
+    ' ƒpƒXƒ[ƒh•t‚«‚¾‚ªA’†g‚Í‹ó
+    AddAttachItem "a4", "", "Œ_–ñ.zip", "", "password", 0, True, "set"
+    AddAttachItem "a4n", "a4", "’†g‚Í‹ó‚Å‚·", "", "note", 1, False
 
-    ' ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ä»˜ã ZIP ã®ä¸­ã® PDFã€‚ã“ã‚Œã ã‘å®‰å…¨
-    AddAttachItem "a5", "", "é€ä»˜.zip", "", "password", 0, True, "set"
-    AddAttachItem "a5a", "a5", "æœ¬æ–‡.pdf", "PDF", "pdf", 1, False
+    ' ƒpƒXƒ[ƒh•t‚« ZIP ‚Ì’†‚Ì PDFB‚±‚ê‚¾‚¯ˆÀ‘S
+    AddAttachItem "a5", "", "‘—•t.zip", "", "password", 0, True, "set"
+    AddAttachItem "a5a", "a5", "–{•¶.pdf", "PDF", "pdf", 1, False
 
 End Sub
 
@@ -1358,7 +1701,7 @@ Private Sub RenderAttachmentList()
             attachH = ATTACH_HEADER + collapsedContentH + 2
         End If
 
-        ' æ·»ä»˜æ¬„ã ã‘ãŒé«˜ããªã‚Šã™ããªã„ã‚ˆã†ã€ä¸­èº«ã«åˆã‚ã›ãŸé«˜ã•ã® 2/3 ã«ã™ã‚‹
+        ' “Y•t—“‚¾‚¯‚ª‚‚­‚È‚è‚·‚¬‚È‚¢‚æ‚¤A’†g‚É‡‚í‚¹‚½‚‚³‚Ì 2/3 ‚É‚·‚é
         attachH = attachH * 2 / 3
     End If
 
@@ -1454,11 +1797,11 @@ Private Sub UpdateAttachmentHeading()
     Set alert = Me.Controls("fraAttachments").Controls("lblAttachmentAlert")
 
     If mAttachExpanded Then
-        title.Caption = ChrW(&H25BE) & "  æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«"
-        title.ControlTipText = "ã‚¯ãƒªãƒƒã‚¯ã§å®›å…ˆã‚«ãƒ¼ãƒ‰ã‚’æˆ»ã™"
+        title.Caption = ChrW(&H25BE) & "  “Y•tƒtƒ@ƒCƒ‹"
+        title.ControlTipText = "ƒNƒŠƒbƒN‚Åˆ¶æƒJ[ƒh‚ğ–ß‚·"
     Else
-        title.Caption = ChrW(&H25B8) & "  æ·»ä»˜ãƒ•ã‚¡ã‚¤ãƒ«"
-        title.ControlTipText = "ã‚¯ãƒªãƒƒã‚¯ã§ä¸€è¦§ã‚’ä¸Šã¾ã§åºƒã’ã‚‹"
+        title.Caption = ChrW(&H25B8) & "  “Y•tƒtƒ@ƒCƒ‹"
+        title.ControlTipText = "ƒNƒŠƒbƒN‚Åˆê——‚ğã‚Ü‚ÅL‚°‚é"
     End If
 
     titleWidth = MeasureLabelWidth(title)
@@ -1485,7 +1828,7 @@ Private Function HasAttachmentToReview() As Boolean
     Dim i As Long
 
     For i = 1 To mAttachCount
-        If Not AttachmentIsSafe(i) Then
+        If AttachmentNeedsReview(i) Then
             HasAttachmentToReview = True
             Exit Function
         End If
@@ -1500,7 +1843,7 @@ Private Function LeafFileCount() As Long
 
     For i = 1 To mAttachCount
         If mAttachItems(i).Expandable Then
-            ' ZIP ã¨ç©ºã® ZIP ã¯ä»¶æ•°ã«å…¥ã‚Œãªã„
+            ' ZIP ‚Æ‹ó‚Ì ZIP ‚ÍŒ”‚É“ü‚ê‚È‚¢
         ElseIf mAttachItems(i).Kind <> "note" Then
             LeafFileCount = LeafFileCount + 1
         End If
@@ -1525,6 +1868,96 @@ Private Function AttachmentIsSafe(ByVal index As Long) As Boolean
     Loop
 
     AttachmentIsSafe = sawPasswordZip
+
+End Function
+
+
+' —vŠm”F‚ÍŸ‚Ìs‚¾‚¯
+'   ZIP ‚ÌŠO‚É‚ ‚é PDF
+'   ƒpƒXƒ[ƒh–¢İ’è‚Ì ZIP
+'   PDF ˆÈŠO‚Ìƒtƒ@ƒCƒ‹
+Private Function AttachmentNeedsReview(ByVal index As Long) As Boolean
+
+    Dim kind As String
+
+    kind = mAttachItems(index).Kind
+
+    If kind = "note" Then Exit Function
+
+    If kind = "other" Then
+        AttachmentNeedsReview = True
+        Exit Function
+    End If
+
+    If kind = "pdf" Then
+        If Len(mAttachItems(index).ParentId) = 0 Then
+            AttachmentNeedsReview = True
+        End If
+        Exit Function
+    End If
+
+    If mAttachItems(index).Expandable Then
+        If mAttachItems(index).PasswordState <> "set" Then
+            AttachmentNeedsReview = True
+        End If
+    End If
+
+End Function
+
+
+Private Function NearestPasswordZip(ByVal index As Long) As Long
+
+    Dim current As Long
+
+    current = index
+
+    Do While current > 0
+        If mAttachItems(current).PasswordState = "set" Then
+            NearestPasswordZip = current
+            Exit Function
+        End If
+        current = FindAttachItem(mAttachItems(current).ParentId)
+    Loop
+
+End Function
+
+
+Private Function IsDescendantOf( _
+    ByVal index As Long, _
+    ByVal ancestorId As String) As Boolean
+
+    Dim parentIndex As Long
+
+    parentIndex = FindAttachItem(mAttachItems(index).ParentId)
+
+    Do While parentIndex > 0
+        If mAttachItems(parentIndex).Id = ancestorId Then
+            IsDescendantOf = True
+            Exit Function
+        End If
+        parentIndex = FindAttachItem(mAttachItems(parentIndex).ParentId)
+    Loop
+
+End Function
+
+
+' ƒpƒXƒ[ƒh•t‚« ZIP ‚Ì’†‚ªA‹óiŠm”F‚Å‚«‚È‚¢’‹L‚¾‚¯j‚© PDF ‚¾‚¯‚©
+Private Function ContentsAreEmptyOrPdf(ByVal zipIndex As Long) As Boolean
+
+    Dim i As Long
+    Dim kind As String
+
+    ContentsAreEmptyOrPdf = True
+
+    For i = 1 To mAttachCount
+        If IsDescendantOf(i, mAttachItems(zipIndex).Id) Then
+            kind = mAttachItems(i).Kind
+            If kind <> "note" And kind <> "pdf" And Not mAttachItems(i).Expandable Then
+                ContentsAreEmptyOrPdf = False
+                Exit Function
+            End If
+        End If
+    Next i
 
 End Function
 
@@ -1569,6 +2002,7 @@ Private Sub CreateAttachRow( _
     Dim nameColor As Long
     Dim statusColor As Long
     Dim backColor As Long
+    Dim emphasize As Boolean
     Dim nameLeft As Single
     Dim nameWidth As Single
     Dim statusWidth As Single
@@ -1585,8 +2019,9 @@ Private Sub CreateAttachRow( _
     If index = 0 Then Exit Sub
 
     AttachRowStyle index, nameColor, statusColor, backColor
+    emphasize = AttachmentNeedsReview(index)
 
-    ' å®Ÿè¡Œæ™‚ã«ä½œã£ãŸ Frame ã®ä¸­ã¸ã¯éƒ¨å“ã‚’ç½®ã‘ãªã„ã®ã§ã€è¡Œã¯ãƒªã‚¹ãƒˆã¸ç›´æ¥ä¸¦ã¹ã‚‹
+    ' Às‚Éì‚Á‚½ Frame ‚Ì’†‚Ö‚Í•”•i‚ğ’u‚¯‚È‚¢‚Ì‚ÅAs‚ÍƒŠƒXƒg‚Ö’¼Ú•À‚×‚é
     Set lbl = list.Controls.Add( _
         "Forms.Label.1", _
         "row_" & itemId, _
@@ -1607,7 +2042,84 @@ Private Sub CreateAttachRow( _
     lbl.ZOrder 1
     RegisterAttachClick lbl
 
-    ' å·¦ç«¯ã«ä½™ç™½ã‚’å–ã‚Šã€ãƒ•ã‚¡ã‚¤ãƒ«åã¯èµ¤ç·šã‚’å¼•ã„ãŸã‚ãŸã‚Šã‹ã‚‰å§‹ã‚ã‚‹
+    If mAttachItems(index).Depth = 0 And mAttachItems(index).Kind <> "note" Then
+        Set markLbl = list.Controls.Add( _
+            "Forms.Label.1", _
+            "ckr_" & itemId, _
+            True)
+
+        With markLbl
+            .Left = 4
+            .Top = topPos - 1
+            .Width = 16
+            .Height = 16
+            .Font.Name = "Segoe UI Symbol"
+            .Font.Size = 13
+            .Font.Bold = False
+            .TextAlign = fmTextAlignCenter
+            .BackStyle = fmBackStyleTransparent
+            .BorderStyle = fmBorderStyleNone
+            .WordWrap = False
+            .Caption = ChrW(&H25CB)
+            .ForeColor = RGB(150, 152, 158)
+        End With
+
+        markLbl.ZOrder 0
+        RegisterAttachClick markLbl
+
+        Set markLbl = list.Controls.Add( _
+            "Forms.Label.1", _
+            "ck_" & itemId, _
+            True)
+
+        With markLbl
+            .Left = 5
+            .Top = topPos + 3
+            .Width = 14
+            .Height = 14
+            .Font.Name = "Segoe UI Symbol"
+            .Font.Size = 11
+            .Font.Bold = False
+            .TextAlign = fmTextAlignCenter
+            .BackStyle = fmBackStyleTransparent
+            .BorderStyle = fmBorderStyleNone
+            .WordWrap = False
+            .Caption = ChrW(&H25CF)
+            .ForeColor = RGB(255, 255, 255)
+            .Visible = False
+        End With
+
+        markLbl.ZOrder 0
+        RegisterAttachClick markLbl
+
+        Set markLbl = list.Controls.Add( _
+            "Forms.Label.1", _
+            "km_" & itemId, _
+            True)
+
+        With markLbl
+            .Left = 4
+            .Top = topPos + 2
+            .Width = 16
+            .Height = 16
+            .Font.Name = "Segoe UI Symbol"
+            .Font.Size = 9
+            .Font.Bold = True
+            .TextAlign = fmTextAlignCenter
+            .BackStyle = fmBackStyleTransparent
+            .BorderStyle = fmBorderStyleNone
+            .WordWrap = False
+            .Caption = ChrW(&H2713)
+            .ForeColor = RGB(32, 33, 36)
+            .Visible = False
+        End With
+
+        markLbl.ZOrder 0
+        RegisterAttachClick markLbl
+        PaintAttachCheck list, itemId, mAttachItems(index).Checked
+    End If
+
+    ' ¶’[‚É—]”’‚ğæ‚èAƒtƒ@ƒCƒ‹–¼‚ÍÔü‚ğˆø‚¢‚½‚ ‚½‚è‚©‚çn‚ß‚é
     markLeft = 26 + mAttachItems(index).Depth * 16
     nameLeft = markLeft + 14
 
@@ -1631,6 +2143,7 @@ Private Sub CreateAttachRow( _
             .Caption = mark
             .Font.Name = "Meiryo UI"
             .Font.Size = 9
+            .Font.Bold = emphasize
             .ForeColor = nameColor
             .BackStyle = fmBackStyleTransparent
             .BorderStyle = fmBorderStyleNone
@@ -1675,6 +2188,7 @@ Private Sub CreateAttachRow( _
         .Caption = mAttachItems(index).Caption
         .Font.Name = "Meiryo UI"
         .Font.Size = 9
+        .Font.Bold = emphasize
         .Font.Italic = (mAttachItems(index).Kind = "note")
         .ForeColor = nameColor
         .BackStyle = fmBackStyleTransparent
@@ -1705,6 +2219,7 @@ Private Sub CreateAttachRow( _
             .Caption = mAttachItems(index).Status
             .Font.Name = "Meiryo UI"
             .Font.Size = 8
+            .Font.Bold = emphasize
             .ForeColor = statusColor
             .TextAlign = fmTextAlignLeft
             .BackStyle = fmBackStyleTransparent
@@ -1735,6 +2250,7 @@ Private Sub CreateAttachRow( _
             .Caption = PasswordCaption(mAttachItems(index).PasswordState)
             .Font.Name = "Meiryo UI"
             .Font.Size = 8
+            .Font.Bold = emphasize
             .ForeColor = statusColor
             .TextAlign = fmTextAlignLeft
             .BackStyle = fmBackStyleTransparent
@@ -1774,9 +2290,9 @@ Private Function PasswordCaption(ByVal passwordState As String) As String
 
     Select Case passwordState
         Case "set"
-            PasswordCaption = "ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰è¨­å®šã‚ã‚Š"
+            PasswordCaption = "ƒpƒXƒ[ƒhİ’è‚ ‚è"
         Case "none"
-            PasswordCaption = "ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰è¨­å®šãªã—"
+            PasswordCaption = "ƒpƒXƒ[ƒhİ’è‚È‚µ"
     End Select
 
 End Function
@@ -1831,7 +2347,7 @@ End Sub
 
 
 '========================================================
-' ç´°ã„ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒãƒ¼
+' ×‚¢ƒXƒNƒ[ƒ‹ƒo[
 '========================================================
 Public Sub SyncScrollThumb(ByVal list As Object)
 
@@ -2106,40 +2622,95 @@ Private Sub AttachRowStyle( _
     ByRef statusColor As Long, _
     ByRef backColor As Long)
 
+    Dim zipIndex As Long
+
     nameColor = RGB(55, 55, 60)
     statusColor = RGB(55, 55, 60)
     backColor = RGB(255, 255, 255)
 
-    ' å®‰å…¨ãªã®ã¯ã€ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ä»˜ã ZIP ã®ä¸­ã«ã‚ã‚‹ PDF ã ã‘
+    ' ˆÀ‘S‚È‚Ì‚ÍAƒpƒXƒ[ƒh•t‚« ZIP ‚Ì’†‚É‚ ‚é PDF ‚¾‚¯
     If AttachmentIsSafe(index) Then
         nameColor = RGB(70, 120, 78)
         statusColor = RGB(70, 120, 78)
-    Else
-        backColor = RGB(252, 244, 243)
+        Exit Sub
     End If
+
+    ' Œ©o‚µ‚Ìu—vŠm”Fv‚Æ“¯‚¶Ô
+    If AttachmentNeedsReview(index) Then
+        nameColor = RGB(176, 64, 60)
+        statusColor = RGB(176, 64, 60)
+    End If
+
+    ' ƒpƒXƒ[ƒh•t‚«‚ÅA’†g‚ª‹ó‚Ü‚½‚Í PDF ‚¾‚¯‚È‚çÔ”wŒi‚É‚µ‚È‚¢
+    zipIndex = NearestPasswordZip(index)
+    If zipIndex > 0 Then
+        If ContentsAreEmptyOrPdf(zipIndex) Then Exit Sub
+    End If
+
+    backColor = RGB(252, 244, 243)
+
+End Sub
+
+
+Private Sub PlaceInternalCheckButton()
+
+    Dim fra As MSForms.Frame
+    Dim titleLbl As MSForms.Label
+    Dim textW As Single
+
+    Set fra = Me.Controls("fraInternal")
+    Set titleLbl = fra.Controls("fraInternal_title")
+
+    titleLbl.AutoSize = True
+    textW = titleLbl.Width
+    titleLbl.AutoSize = False
+    titleLbl.Width = textW
+    titleLbl.Height = 22
+    titleLbl.Top = 8
+
+    CreateFlatButton _
+        "btnCheckInternal", _
+        "‚Ü‚Æ‚ß‚Äƒ`ƒFƒbƒN", _
+        "", _
+        titleLbl.Left + textW + 6, _
+        8, _
+        100, _
+        18, _
+        RGB(255, 255, 255), _
+        RGB(42, 96, 148), _
+        RGB(186, 204, 222), _
+        RGB(232, 238, 244), _
+        False, _
+        "CheckInternal", _
+        fra, _
+        8
+    SetControlTip fra.Controls("btnCheckInternal"), _
+        "•”“à‚Ìl‚¾‚¯A‚Ü‚Æ‚ß‚Äƒ`ƒFƒbƒN‚ğ•t‚¯‚Ü‚·"
 
 End Sub
 
 
 '========================================================
-' ãƒ•ãƒƒã‚¿ãƒ¼
+' ƒtƒbƒ^[
 '========================================================
 Private Sub CreateFooter()
 
     Dim topPos As Single
     Dim sendLeft As Single
+    Dim x As Single
 
     topPos = Me.InsideHeight - MARGIN - 28
     sendLeft = Me.InsideWidth - MARGIN - 96
+    x = MARGIN
 
-    'è¡¨ç¤ºã®åˆæœŸåŒ–ã€‚æ ã ã‘ã®é™ã‹ãªãƒœã‚¿ãƒ³ã«ã—ã¦ã€é€ä¿¡ã¨ä¸¦ã¹ãªã„
+    '•\¦‚Ì‰Šú‰»B˜g‚¾‚¯‚ÌÃ‚©‚Èƒ{ƒ^ƒ“‚É‚µ‚ÄA‘—M‚Æ•À‚×‚È‚¢
     CreateFlatButton _
         "btnReset", _
-        "è¡¨ç¤ºã‚’åˆæœŸåŒ–", _
+        "•\¦‚ğ‰Šú‰»", _
         ChrW(&H21BA), _
-        MARGIN, _
+        x, _
         topPos, _
-        132, _
+        112, _
         28, _
         RGB(255, 255, 255), _
         RGB(90, 92, 98), _
@@ -2147,12 +2718,49 @@ Private Sub CreateFooter()
         RGB(236, 237, 240), _
         False, _
         "Reset"
-    Me.Controls("btnReset").ControlTipText = _
-        "åˆ—ã®çµã‚Šè¾¼ã¿ã€é–‹ã„ã¦ã„ã‚‹ã‚«ãƒ¼ãƒ‰ã€ZIP ã®å±•é–‹ã€ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã‚’æœ€åˆã®çŠ¶æ…‹ã«æˆ»ã—ã¾ã™"
+    SetControlTip Me.Controls("btnReset"), _
+        "—ñ‚Ìi‚è‚İAŠJ‚¢‚Ä‚¢‚éƒJ[ƒhAZIP ‚Ì“WŠJAƒXƒNƒ[ƒ‹‚ğÅ‰‚Ìó‘Ô‚É–ß‚µ‚Ü‚·"
+    x = x + 112 + 6
+
+    CreateFlatButton _
+        "btnCheckAll", _
+        "ƒ`ƒFƒbƒN‚ğ‘S•”•t‚¯‚éi”ñ„§j", _
+        "", _
+        x, _
+        topPos, _
+        128, _
+        28, _
+        RGB(255, 255, 255), _
+        RGB(140, 142, 148), _
+        RGB(214, 216, 220), _
+        RGB(236, 237, 240), _
+        False, _
+        "CheckAll", _
+        fontSize:=8
+    SetControlTip Me.Controls("btnCheckAll"), _
+        "‘Sˆõ‚ÆA“Y•tƒtƒ@ƒCƒ‹‚Ì1ŠK‘w–Ú‚Éƒ`ƒFƒbƒN‚ğ•t‚¯‚Ü‚·"
+    x = x + 128 + 6
+
+    CreateFlatButton _
+        "btnClearChecks", _
+        "ƒ`ƒFƒbƒN‚ğ‘S•”ŠO‚·", _
+        "", _
+        x, _
+        topPos, _
+        124, _
+        28, _
+        RGB(255, 255, 255), _
+        RGB(90, 92, 98), _
+        RGB(214, 216, 220), _
+        RGB(236, 237, 240), _
+        False, _
+        "ClearChecks"
+    SetControlTip Me.Controls("btnClearChecks"), _
+        "l‚Ìƒ`ƒFƒbƒN‚ÆA“Y•tƒtƒ@ƒCƒ‹‚Ì1ŠK‘w–Ú‚Ìƒ`ƒFƒbƒN‚ğ‚·‚×‚ÄŠO‚µ‚Ü‚·"
 
     CreateFlatButton _
         "btnCancel", _
-        "ã‚­ãƒ£ãƒ³ã‚»ãƒ«", _
+        "ƒLƒƒƒ“ƒZƒ‹", _
         "", _
         sendLeft - 8 - 96, _
         topPos, _
@@ -2167,7 +2775,7 @@ Private Sub CreateFooter()
 
     CreateFlatButton _
         "btnSend", _
-        "é€ä¿¡", _
+        "‘—M", _
         "", _
         sendLeft, _
         topPos, _
@@ -2180,11 +2788,83 @@ Private Sub CreateFooter()
         True, _
         "Send"
 
+    UpdateSendButton
+
+End Sub
+
+
+Private Sub CheckPeopleIn(ByVal frameName As String)
+
+    Dim fra As MSForms.Frame
+    Dim list As MSForms.Frame
+    Dim ctl As Object
+    Dim key As String
+
+    Set fra = Me.Controls(frameName)
+    Set list = fra.Controls(fra.Name & "_list")
+
+    For Each ctl In list.Controls
+        If TypeName(ctl) = "Frame" Then
+            If Left$(ctl.Name, 5) = "card_" Then
+                If Not PersonIsChecked(ctl) Then
+                    key = PersonKey(ctl)
+                    mCheckedPeople.Add True, key
+                End If
+                PlacePersonCheck ctl
+            End If
+        End If
+    Next ctl
+
+End Sub
+
+
+Private Sub CheckAllAttachments()
+
+    Dim i As Long
+    Dim list As MSForms.Frame
+    Dim ctl As Object
+
+    For i = 1 To mAttachCount
+        If mAttachItems(i).Depth = 0 Then
+            If mAttachItems(i).Kind <> "note" Then
+                mAttachItems(i).Checked = True
+            End If
+        End If
+    Next i
+
+    Set list = Me.Controls("fraAttachments").Controls("fraAttachments_list")
+    For i = 1 To mAttachCount
+        If mAttachItems(i).Depth = 0 Then
+            If mAttachItems(i).Kind <> "note" Then
+                PaintAttachCheck list, mAttachItems(i).Id, True
+            End If
+        End If
+    Next i
+
+End Sub
+
+
+Private Sub CheckAll()
+
+    CheckPeopleIn "fraExternal"
+    CheckPeopleIn "fraOutside"
+    CheckPeopleIn "fraInternal"
+    CheckAllAttachments
+    UpdateSendButton
+
+End Sub
+
+
+Private Sub CheckInternal()
+
+    CheckPeopleIn "fraInternal"
+    UpdateSendButton
+
 End Sub
 
 
 '========================================================
-' ãƒ•ãƒ©ãƒƒãƒˆãªãƒ•ãƒƒã‚¿ãƒ¼ãƒœã‚¿ãƒ³
+' ƒtƒ‰ƒbƒg‚Èƒtƒbƒ^[ƒ{ƒ^ƒ“
 '========================================================
 Private Sub CreateFlatButton( _
     ByVal controlName As String, _
@@ -2199,16 +2879,25 @@ Private Sub CreateFlatButton( _
     ByVal borderColor As Long, _
     ByVal downColor As Long, _
     ByVal bold As Boolean, _
-    ByVal actionName As String)
+    ByVal actionName As String, _
+    Optional ByVal host As MSForms.Frame = Nothing, _
+    Optional ByVal fontSize As Single = 9)
 
     Dim plate As MSForms.Frame
     Dim face As MSForms.Label
     Dim icon As MSForms.Label
 
-    Set plate = Me.Controls.Add( _
-        "Forms.Frame.1", _
-        controlName, _
-        True)
+    If host Is Nothing Then
+        Set plate = Me.Controls.Add( _
+            "Forms.Frame.1", _
+            controlName, _
+            True)
+    Else
+        Set plate = host.Controls.Add( _
+            "Forms.Frame.1", _
+            controlName, _
+            True)
+    End If
 
     With plate
         .Left = leftPos
@@ -2257,7 +2946,7 @@ Private Sub CreateFlatButton( _
         .BackStyle = fmBackStyleTransparent
         .ForeColor = foreColor
         .Font.Name = "Meiryo UI"
-        .Font.Size = 9
+        .Font.Size = fontSize
         .Font.Bold = bold
     End With
 
@@ -2272,7 +2961,7 @@ Private Sub CreateFlatButton( _
 End Sub
 
 
-' æ–‡å­—ã®å®Ÿå¯¸ã‚’æ¸¬ã£ã¦ã€ãƒœã‚¿ãƒ³ã®å†…å´ã®ä¸­å¤®ã«ç½®ã
+' •¶š‚ÌÀ¡‚ğ‘ª‚Á‚ÄAƒ{ƒ^ƒ“‚Ì“à‘¤‚Ì’†‰›‚É’u‚­
 Private Sub CenterButtonCaption( _
     ByVal plate As MSForms.Frame, _
     ByVal face As MSForms.Label, _
@@ -2290,7 +2979,7 @@ Private Sub CenterButtonCaption( _
     boxW = plate.Width - 2
     boxH = plate.Height - 2
 
-    textW = MeasureLabelWidth(face) + 2
+    textW = MeasureLabelWidth(face) + 8
     face.TextAlign = fmTextAlignCenter
     face.Width = textW
     face.Height = face.Font.Size + 6
@@ -2340,7 +3029,7 @@ End Function
 
 
 '========================================================
-' Buttonã‚¤ãƒ™ãƒ³ãƒˆç™»éŒ²
+' ButtonƒCƒxƒ“ƒg“o˜^
 '========================================================
 Private Sub RegisterFlatClick( _
     ByVal ctl As Object, _
@@ -2371,7 +3060,461 @@ End Sub
 
 
 '========================================================
-' ãƒœã‚¿ãƒ³ã‹ã‚‰å‘¼ã°ã‚Œã‚‹å‡¦ç†
+' ƒvƒƒtƒB[ƒ‹‰æ‘œ‚ÌŠm”Fƒ`ƒFƒbƒN
+'========================================================
+Private Function PersonKey(ByVal card As MSForms.Frame) As String
+
+    PersonKey = card.Parent.Name & "|" & card.Name
+
+End Function
+
+
+Private Function PersonIsChecked(ByVal card As MSForms.Frame) As Boolean
+
+    On Error Resume Next
+    PersonIsChecked = False
+    If mCheckedPeople Is Nothing Then Exit Function
+    PersonIsChecked = CBool(mCheckedPeople(PersonKey(card)))
+    If Err.Number <> 0 Then
+        Err.Clear
+        PersonIsChecked = False
+    End If
+
+End Function
+
+
+Private Sub PlacePersonCheck(ByVal card As MSForms.Frame)
+
+    Dim cardNo As String
+    Dim photo As MSForms.Label
+    Dim chk As MSForms.Label
+    Dim plate As MSForms.Label
+    Dim mark As Single
+
+    cardNo = Mid$(card.Name, 6)
+    Set photo = card.Controls("photo_" & cardNo)
+    Set plate = card.Controls("phshd_" & cardNo)
+    Set chk = card.Controls("phchk_" & cardNo)
+
+    photo.Font.Name = "Meiryo UI"
+    photo.Caption = CStr(photo.Tag)
+
+    mark = photo.Left - 3
+    If mark > 16 Then mark = 16
+    If mark > photo.Height - 2 Then mark = photo.Height - 2
+    If mark < 11 Then mark = 11
+
+    With plate
+        .Width = mark
+        .Height = mark + 4
+        .Left = photo.Left - .Width - 1
+        If .Left < 0 Then .Left = 0
+        .Top = photo.Top + (photo.Height - mark) / 2
+        If .Top < 14 Then .Top = 14
+        .Caption = ChrW(&H25CF)
+        .Font.Name = "Segoe UI Symbol"
+        .Font.Bold = False
+        .Font.Size = mark * 0.92
+        .BackStyle = fmBackStyleTransparent
+        .BorderStyle = fmBorderStyleNone
+        .TextAlign = fmTextAlignCenter
+        .Visible = True
+    End With
+
+    With chk
+        .Width = mark * 0.78
+        .Height = mark * 0.72
+        .Left = plate.Left + (mark - .Width) / 2 - mark * 0.02
+        .Top = plate.Top + (mark - .Height) / 2 + mark * 0.08
+        .Font.Name = "Segoe UI Symbol"
+        .Font.Bold = True
+        .Font.Size = mark * 0.56
+        .BackStyle = fmBackStyleTransparent
+        .BorderStyle = fmBorderStyleNone
+        .Caption = ChrW(&H2713)
+        .TextAlign = fmTextAlignCenter
+        .Visible = True
+    End With
+
+    If PersonIsChecked(card) Then
+        plate.ForeColor = RGB(46, 164, 90)
+        chk.ForeColor = RGB(255, 255, 255)
+    Else
+        plate.ForeColor = RGB(198, 200, 204)
+        chk.ForeColor = RGB(132, 134, 138)
+    End If
+    plate.ZOrder 0
+    chk.ZOrder 0
+
+End Sub
+
+
+Public Sub TogglePersonCheck(ByVal card As MSForms.Frame)
+
+    Dim key As String
+
+    If card Is Nothing Then Exit Sub
+    If Left$(card.Name, 5) <> "card_" Then Exit Sub
+
+    key = PersonKey(card)
+    If PersonIsChecked(card) Then
+        On Error Resume Next
+        mCheckedPeople.Remove key
+        On Error GoTo 0
+    Else
+        mCheckedPeople.Add True, key
+    End If
+
+    PlacePersonCheck card
+    UpdateSendButton
+
+End Sub
+
+
+Private Sub PaintAttachCheck( _
+    ByVal list As MSForms.Frame, _
+    ByVal itemId As String, _
+    ByVal checked As Boolean)
+
+    Dim ring As MSForms.Label
+    Dim disc As MSForms.Label
+    Dim tick As MSForms.Label
+
+    On Error Resume Next
+    Set ring = list.Controls("ckr_" & itemId)
+    Set disc = list.Controls("ck_" & itemId)
+    Set tick = list.Controls("km_" & itemId)
+    On Error GoTo 0
+    If ring Is Nothing Or disc Is Nothing Or tick Is Nothing Then Exit Sub
+
+    ring.Caption = ChrW(&H25CF)
+    ring.Font.Name = "Segoe UI Symbol"
+    ring.Font.Bold = False
+    ring.Font.Size = ring.Width * 0.92
+    ring.Visible = True
+
+    disc.Visible = False
+
+    tick.Caption = ChrW(&H2713)
+    tick.Font.Name = "Segoe UI Symbol"
+    tick.Font.Bold = True
+    tick.Font.Size = ring.Width * 0.56
+    tick.Width = ring.Width * 0.78
+    tick.Height = ring.Width * 0.72
+    tick.Left = ring.Left + (ring.Width - tick.Width) / 2 - ring.Width * 0.02
+    tick.Top = ring.Top + (ring.Width - tick.Height) / 2 + ring.Width * 0.08
+    tick.Visible = True
+
+    If checked Then
+        ring.ForeColor = RGB(46, 164, 90)
+        tick.ForeColor = RGB(255, 255, 255)
+    Else
+        ring.ForeColor = RGB(198, 200, 204)
+        tick.ForeColor = RGB(132, 134, 138)
+    End If
+    ring.ZOrder 0
+    tick.ZOrder 0
+
+End Sub
+
+Public Sub ToggleAttachCheck(ByVal itemId As String)
+
+    Dim index As Long
+    Dim lbl As MSForms.Label
+
+    index = FindAttachItem(itemId)
+    If index = 0 Then Exit Sub
+    If mAttachItems(index).Depth <> 0 Then Exit Sub
+    If mAttachItems(index).Kind = "note" Then Exit Sub
+
+    mAttachItems(index).Checked = Not mAttachItems(index).Checked
+
+    PaintAttachCheck _
+        Me.Controls("fraAttachments").Controls("fraAttachments_list"), _
+        itemId, _
+        mAttachItems(index).Checked
+
+    UpdateSendButton
+
+End Sub
+
+
+Private Function AllPeopleChecked() As Boolean
+
+    Dim names As Variant
+    Dim i As Long
+    Dim fra As MSForms.Frame
+    Dim list As MSForms.Frame
+    Dim ctl As Object
+    Dim found As Boolean
+
+    names = Array("fraExternal", "fraOutside", "fraInternal")
+    found = False
+
+    For i = LBound(names) To UBound(names)
+        Set fra = Me.Controls(CStr(names(i)))
+        Set list = fra.Controls(fra.Name & "_list")
+        For Each ctl In list.Controls
+            If TypeName(ctl) = "Frame" Then
+                If Left$(ctl.Name, 5) = "card_" Then
+                    found = True
+                    If Not PersonIsChecked(ctl) Then Exit Function
+                End If
+            End If
+        Next ctl
+    Next i
+
+    AllPeopleChecked = found
+
+End Function
+
+
+Private Function AllTopFilesChecked() As Boolean
+
+    Dim i As Long
+    Dim found As Boolean
+
+    found = False
+    For i = 1 To mAttachCount
+        If mAttachItems(i).Depth = 0 Then
+            If mAttachItems(i).Kind <> "note" Then
+                found = True
+                If Not mAttachItems(i).Checked Then Exit Function
+            End If
+        End If
+    Next i
+
+    AllTopFilesChecked = found
+
+End Function
+
+
+Private Sub SetControlTip(ByVal ctl As Object, ByVal tip As String)
+
+    Dim child As Object
+
+    On Error Resume Next
+    ctl.ControlTipText = tip
+    If TypeName(ctl) = "Frame" Then
+        For Each child In ctl.Controls
+            child.ControlTipText = tip
+        Next child
+    End If
+    On Error GoTo 0
+
+End Sub
+
+
+Private Sub ClearAllChecks()
+
+    Dim names As Variant
+    Dim i As Long
+    Dim fra As MSForms.Frame
+    Dim list As MSForms.Frame
+    Dim ctl As Object
+
+    Set mCheckedPeople = New Collection
+
+    names = Array("fraExternal", "fraOutside", "fraInternal")
+    For i = LBound(names) To UBound(names)
+        Set fra = Me.Controls(CStr(names(i)))
+        Set list = fra.Controls(fra.Name & "_list")
+        For Each ctl In list.Controls
+            If TypeName(ctl) = "Frame" Then
+                If Left$(ctl.Name, 5) = "card_" Then
+                    PlacePersonCheck ctl
+                End If
+            End If
+        Next ctl
+    Next i
+
+    For i = 1 To mAttachCount
+        mAttachItems(i).Checked = False
+    Next i
+
+    Set list = Me.Controls("fraAttachments").Controls("fraAttachments_list")
+    For i = 1 To mAttachCount
+        If mAttachItems(i).Depth = 0 Then
+            If mAttachItems(i).Kind <> "note" Then
+                PaintAttachCheck list, mAttachItems(i).Id, False
+            End If
+        End If
+    Next i
+
+    UpdateSendButton
+
+End Sub
+
+
+Private Function RemainCaption(ByVal count As Long) As String
+
+    Dim head As String
+    Dim tail As String
+
+    tail = " " & ChrW(&H672A) & ChrW(&H2713) & ChrW(&H4EF6) & ChrW(&H6570) & ChrW(&HFF1A) & CStr(count)
+
+    If count = 0 Then
+        head = ChrW(&H9001) & ChrW(&H4FE1) & ChrW(&H3067) & ChrW(&H304D) & ChrW(&H307E) & ChrW(&H3059) & ChrW(&H3002)
+    Else
+        head = ChrW(&H5B9B) & ChrW(&H5148) & ChrW(&H3001) & ChrW(&H6DFB) & ChrW(&H4ED8) & _
+            ChrW(&H30D5) & ChrW(&H30A1) & ChrW(&H30A4) & ChrW(&H30EB) & _
+            ChrW(&H3092) & ChrW(&H30C1) & ChrW(&H30A7) & ChrW(&H30C3) & ChrW(&H30AF) & _
+            ChrW(&H3057) & ChrW(&H3066) & ChrW(&H304F) & ChrW(&H3060) & ChrW(&H3055) & ChrW(&H3044) & ChrW(&H3002)
+    End If
+
+    RemainCaption = head & tail
+
+End Function
+
+
+Private Function UncheckedRequiredCount() As Long
+
+    Dim names As Variant
+    Dim i As Long
+    Dim fra As MSForms.Frame
+    Dim list As MSForms.Frame
+    Dim ctl As Object
+    Dim n As Long
+
+    names = Array("fraExternal", "fraOutside", "fraInternal")
+
+    For i = LBound(names) To UBound(names)
+        Set fra = Me.Controls(CStr(names(i)))
+        Set list = fra.Controls(fra.Name & "_list")
+        For Each ctl In list.Controls
+            If TypeName(ctl) = "Frame" Then
+                If Left$(ctl.Name, 5) = "card_" Then
+                    If Not PersonIsChecked(ctl) Then n = n + 1
+                End If
+            End If
+        Next ctl
+    Next i
+
+    For i = 1 To mAttachCount
+        If mAttachItems(i).Depth = 0 Then
+            If mAttachItems(i).Kind <> "note" Then
+                If Not mAttachItems(i).Checked Then n = n + 1
+            End If
+        End If
+    Next i
+
+    UncheckedRequiredCount = n
+
+End Function
+
+
+Private Sub UpdateRemainLabel()
+
+    Dim lbl As MSForms.Label
+    Dim blank As MSForms.Label
+    Dim blankRight As MSForms.Label
+    Dim n As Long
+
+    On Error Resume Next
+    Set lbl = Me.Controls("lblCheckRemain")
+    If lbl Is Nothing Then Exit Sub
+    On Error GoTo 0
+
+    n = UncheckedRequiredCount()
+    lbl.Caption = RemainCaption(n)
+    If n = 0 Then
+        lbl.ForeColor = RGB(46, 164, 90)
+    Else
+        lbl.ForeColor = RGB(176, 64, 60)
+    End If
+
+    lbl.WordWrap = False
+    lbl.AutoSize = False
+    lbl.TextAlign = fmTextAlignCenter
+    lbl.Width = MeasureLabelWidth(lbl) + 2
+    lbl.Height = 20
+
+    On Error Resume Next
+    Set blank = Me.Controls("lblHeaderBlank")
+    Set blankRight = Me.Controls("lblHeaderBlankRight")
+    On Error GoTo 0
+
+    lbl.Left = (Me.InsideWidth - lbl.Width) / 2
+    If lbl.Left < 0 Then lbl.Left = 0
+    If lbl.Left + lbl.Width > Me.InsideWidth Then
+        lbl.Left = Me.InsideWidth - lbl.Width
+    End If
+
+    If Not blank Is Nothing Then
+        If lbl.Left > blank.Left Then
+            blank.Width = lbl.Left - blank.Left
+        Else
+            blank.Width = 1
+        End If
+    End If
+
+    If Not blankRight Is Nothing Then
+        blankRight.Top = 0
+        blankRight.Height = 28
+        blankRight.Left = lbl.Left + lbl.Width
+        If blankRight.Left < Me.InsideWidth Then
+            blankRight.Width = Me.InsideWidth - blankRight.Left
+        Else
+            blankRight.Left = Me.InsideWidth - 1
+            blankRight.Width = 1
+        End If
+    End If
+
+    lbl.ZOrder 0
+
+End Sub
+
+Private Sub UpdateSendButton()
+
+    Dim ready As Boolean
+    Dim plate As MSForms.Frame
+    Dim face As MSForms.Label
+    Dim backColor As Long
+    Dim foreColor As Long
+    Dim downColor As Long
+    Dim handler As Variant
+
+    On Error Resume Next
+    Set plate = Me.Controls("btnSend")
+    If plate Is Nothing Then Exit Sub
+    Set face = plate.Controls("btnSend_face")
+    On Error GoTo 0
+
+    ready = AllPeopleChecked() And AllTopFilesChecked()
+
+    If ready Then
+        backColor = RGB(32, 33, 36)
+        foreColor = RGB(255, 255, 255)
+        downColor = RGB(16, 16, 18)
+        plate.Tag = "on"
+        SetControlTip plate, ""
+    Else
+        backColor = RGB(196, 198, 202)
+        foreColor = RGB(255, 255, 255)
+        downColor = backColor
+        plate.Tag = "off"
+        SetControlTip plate, _
+            "l‚Ì‰æ‘œ‚Æ“Y•t‚Ì1ŠK‘w–Ú‚ÉAƒ`ƒFƒbƒN‚ğ‘S•”•t‚¯‚È‚¢‚Æ‘—M‚Å‚«‚Ü‚¹‚ñ"
+    End If
+
+    plate.BackColor = backColor
+    plate.BorderColor = backColor
+    If Not face Is Nothing Then face.ForeColor = foreColor
+
+    For Each handler In mButtonHandlers
+        If handler.ActionName = "Send" Then
+            handler.IdleBack = backColor
+            handler.DownBack = downColor
+        End If
+    Next handler
+
+    UpdateRemainLabel
+
+End Sub
+
+
+'========================================================
+' ƒ{ƒ^ƒ“‚©‚çŒÄ‚Î‚ê‚éˆ—
 '========================================================
 Public Sub ButtonAction(ByVal actionName As String)
 
@@ -2383,15 +3526,29 @@ Public Sub ButtonAction(ByVal actionName As String)
 
         Case "Send"
 
+            If Me.Controls("btnSend").Tag <> "on" Then Exit Sub
+
             MsgBox _
-                "ã“ã‚Œã¯è©¦ä½œç‰ˆã§ã™ã€‚" & vbCrLf & vbCrLf & _
-                "æ¬¡ã®æ®µéšã§ã€å®Ÿéš›ã®Outlookãƒ¡ãƒ¼ãƒ«ã‚’é€ä¿¡ã™ã‚‹å‡¦ç†ã‚’è¿½åŠ ã—ã¾ã™ã€‚", _
+                "‚±‚ê‚Íì”Å‚Å‚·B" & vbCrLf & vbCrLf & _
+                "Ÿ‚Ì’iŠK‚ÅAÀÛ‚ÌOutlookƒ[ƒ‹‚ğ‘—M‚·‚éˆ—‚ğ’Ç‰Á‚µ‚Ü‚·B", _
                 vbInformation, _
-                "é€ä¿¡å‰ãƒã‚§ãƒƒã‚¯"
+                "‘—M‘Oƒ`ƒFƒbƒN"
 
         Case "Reset"
 
             ResetDisplay
+
+        Case "ClearChecks"
+
+            ClearAllChecks
+
+        Case "CheckAll"
+
+            CheckAll
+
+        Case "CheckInternal"
+
+            CheckInternal
 
     End Select
 
@@ -2399,7 +3556,7 @@ End Sub
 
 
 '========================================================
-' ç”»é¢ã®é–‹ãæ–¹ã ã‘ã‚’ã€èµ·å‹•ç›´å¾Œã®çŠ¶æ…‹ã«æˆ»ã™
+' ‰æ–Ê‚ÌŠJ‚«•û‚¾‚¯‚ğA‹N“®’¼Œã‚Ìó‘Ô‚É–ß‚·
 '========================================================
 Private Sub ResetDisplay()
 
@@ -2414,8 +3571,10 @@ Private Sub ResetDisplay()
     End If
 
     mCategoryFilter = ""
+    mAddressFilter = ""
     mAttachExpanded = False
     ApplyCategoryFilter
+    ApplyAddressFilter
 
     names = Array("fraExternal", "fraOutside", "fraInternal")
 
@@ -2436,7 +3595,7 @@ End Sub
 
 
 '========================================================
-' ã‚¤ãƒ‹ã‚·ãƒ£ãƒ«å–å¾—
+' ƒCƒjƒVƒƒƒ‹æ“¾
 '========================================================
 Private Function GetInitials(ByVal fullName As String) As String
 
@@ -2464,7 +3623,7 @@ End Function
 
 
 '========================================================
-' Labelä½œæˆãƒ˜ãƒ«ãƒ‘ãƒ¼
+' Labelì¬ƒwƒ‹ƒp[
 '========================================================
 Private Function AddLabel( _
     ByVal controlName As String, _
